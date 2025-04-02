@@ -29,7 +29,10 @@ jobs:
 
     env:
       TF_VERSION: 1.8.3 # specify the Terraform version you want to use
-      TF_WORKING_DIR: ./ # specify your Terraform configuration directory
+      TF_WORKING_DIR: ./vpc # specify your Terraform configuration directory
+    permissions:
+      id-token: write # This is required for requesting the JWT
+      contents: read
 
     steps:
       - name: Checkout code
