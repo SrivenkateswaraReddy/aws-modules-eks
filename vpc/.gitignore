@@ -6,7 +6,7 @@ terraform.tfstate.*
 .terraform/
 
 # Ignore Terraform variable files
-*.tfvars
+# *.tfvars
 *.tfvars.json
 
 # Ignore backend configuration file
