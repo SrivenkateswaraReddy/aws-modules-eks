@@ -1,0 +1,90 @@
+name: Terraform
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+    paths:
+      - "vpc/**"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Action to perform (Apply, Destory or plan)"
+        required: true
+        default: "plan"
+        type: choice
+        options:
+          - apply
+          - destroy
+          - plan
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    env:
+      TF_VERSION: 1.8.3 # specify the Terraform version you want to use
+      TF_WORKING_DIR: ./ # specify your Terraform configuration directory
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1 # specify the AWS region
+
+      - name: Terraform Init
+        run: terraform init -backend-config="bucket=${{ secrets.S3_BACKEND }}"  -backend-config="key=${{ secrets.S3_KEY }}"
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform Format
+        run: terraform fmt -check
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -var-file=dev.tfvars
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      # - name: Terraform Plan JSON
+      #   if: always()
+      #   run: terraform show -json plan.tfplan | tee plan.json
+      #   working-directory: ${{ env.TF_WORKING_DIR }}
+
+      # - name: Upload Plan to GitHub Artifacts
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: terraform-plan
+      #     path: ${{ env.TF_WORKING_DIR }}/plan.json
+      - name: Terraform plan
+        if: github.event.inputs.action == 'plan'
+        run: terraform plan -var-file=variables/dev.tfvars
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform destroy
+        if: github.event.inputs.action == 'destroy'
+        run: terraform destroy -var-file=variables/dev.tfvars --auto-approve
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform Apply
+        if: github.event.inputs.action == 'apply'
+        run: terraform apply -var-file=dev.tfvars --auto-approve
+        working-directory: ${{ env.TF_WORKING_DIR }}
