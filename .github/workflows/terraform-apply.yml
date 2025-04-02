@@ -89,5 +89,5 @@ jobs:
 
       - name: Terraform Apply
         if: github.event.inputs.action == 'apply'
-        run: terraform apply -var-file=dev.tfvars --auto-approve
+        run: terraform apply -var-file=variables/dev.tfvars --auto-approve
         working-directory: ${{ env.TF_WORKING_DIR }}
