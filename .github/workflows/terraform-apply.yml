@@ -111,3 +111,8 @@ jobs:
         if: github.event.inputs.action == 'apply'
         run: terraform apply -var-file=${{ env.TF_VAR_FILE }} --auto-approve
         working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Terraform Output
+        if: success() && github.event.inputs.action == 'apply'
+        run: terraform output -json
+        working-directory: ${{ env.TF_WORKING_DIR }}
