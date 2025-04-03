@@ -25,6 +25,7 @@ on:
       environment:
         description: "Environment (dev, staging, prod)"
         required: true
+        default: "dev"
         type: choice
         options:
           - dev
@@ -34,6 +35,7 @@ on:
         description: "Terraform Module to Deploy (vpc, s3, sns, eks)"
         required: true
         type: choice
+        default: "vpc"
         options:
           - vpc
 
