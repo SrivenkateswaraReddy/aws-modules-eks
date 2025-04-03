@@ -10,7 +10,7 @@ on:
       - main
       - master
     paths:
-      - "vpc/**"
+      - "**/*"
   workflow_dispatch:
     inputs:
       action:
@@ -22,6 +22,20 @@ on:
           - apply
           - destroy
           - plan
+      environment:
+        description: "Environment (dev, staging, prod)"
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+      module:
+        description: "Terraform Module to Deploy (vpc, s3, sns, eks)"
+        required: true
+        type: choice
+        options:
+          - vpc
 
 jobs:
   terraform:
@@ -29,7 +43,11 @@ jobs:
 
     env:
       TF_VERSION: 1.8.3 # specify the Terraform version you want to use
-      TF_WORKING_DIR: ./vpc # specify your Terraform configuration directory
+      TF_WORKING_DIR: ./${{github.event.inputs.module}} # specify your Terraform
+      TF_VAR_FILE: variables/${{ github.event.inputs.environment }}.tfvars
+      #configuration directory
+      S3_KEY: "modules/${{ github.event.inputs.module }}/terraform.tfstate"
+
     permissions:
       id-token: write # This is required for requesting the JWT
       contents: read
@@ -51,7 +69,7 @@ jobs:
           aws-region: us-east-1 # specify the AWS region
 
       - name: Terraform Init
-        run: terraform init -backend-config="bucket=${{ secrets.S3_BACKEND }}"  -backend-config="key=${{ secrets.S3_KEY }}"
+        run: terraform init -backend-config="bucket=${{ secrets.S3_BACKEND }}"  -backend-config="key=${{ env.S3_KEY }}"
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       - name: Terraform Format
@@ -79,15 +97,15 @@ jobs:
       #     path: ${{ env.TF_WORKING_DIR }}/plan.json
       - name: Terraform plan
         if: github.event.inputs.action == 'plan'
-        run: terraform plan -var-file=variables/dev.tfvars
+        run: terraform plan -var-file=${{ env.TF_VAR_FILE }}
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       - name: Terraform destroy
         if: github.event.inputs.action == 'destroy'
-        run: terraform destroy -var-file=variables/dev.tfvars --auto-approve
+        run: terraform destroy -var-file=${{ env.TF_VAR_FILE }} --auto-approve
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       - name: Terraform Apply
         if: github.event.inputs.action == 'apply'
-        run: terraform apply -var-file=variables/dev.tfvars --auto-approve
+        run: terraform apply -var-file=${{ env.TF_VAR_FILE }} --auto-approve
         working-directory: ${{ env.TF_WORKING_DIR }}
