@@ -34,7 +34,7 @@ resource "aws_subnet" "public" {
 # private_subnets.tf
 resource "aws_subnet" "private" {
   count             = 2
-  vpc_id            = aws_vpc.main.id
+  vpc_id            = aws_vpc.terraform-vpc.id
   cidr_block        = "10.0.${count.index + 3}.0/24"
   availability_zone = element(["us-east-1a", "us-east-1b"], count.index)
   tags = merge(var.tags,
