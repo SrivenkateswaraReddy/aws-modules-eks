@@ -43,12 +43,17 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
 
+    # env:
+    #   TF_VERSION: 1.8.3 # specify the Terraform version you want to use
+    #   TF_WORKING_DIR: ./${{github.event.inputs.module}} # specify your Terraform
+    #   TF_VAR_FILE: variables/${{ github.event.inputs.environment }}.tfvars
+    #   #configuration directory
+    #   S3_KEY: "modules/${{ github.event.inputs.module }}/terraform.tfstate"
     env:
-      TF_VERSION: 1.8.3 # specify the Terraform version you want to use
-      TF_WORKING_DIR: ./${{github.event.inputs.module}} # specify your Terraform
-      TF_VAR_FILE: variables/${{ github.event.inputs.environment }}.tfvars
-      #configuration directory
-      S3_KEY: "modules/${{ github.event.inputs.module }}/terraform.tfstate"
+      TF_VERSION: 1.8.3
+      TF_WORKING_DIR: ${{ github.event.inputs.module && format('./{0}', github.event.inputs.module) || './' }}
+      TF_VAR_FILE: ${{ github.event.inputs.environment && format('variables/{0}.tfvars', github.event.inputs.environment) || 'variables/dev.tfvars' }}
+      S3_KEY: ${{ github.event.inputs.module && format('modules/{0}/terraform.tfstate', github.event.inputs.module) || 'modules/vpc/terraform.tfstate' }}
 
     permissions:
       id-token: write # This is required for requesting the JWT

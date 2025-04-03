@@ -98,3 +98,72 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
 }
+
+# nacl
+
+# Public subnet NACL
+resource "aws_network_acl" "public_nacl" {
+  vpc_id     = aws_vpc.terraform-vpc.id
+  subnet_ids = aws_subnet.public[*].id
+
+  ingress {
+    rule_no    = 100
+    action     = "allow"
+    protocol   = "tcp"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 80
+    to_port    = 80
+  }
+
+  ingress {
+    rule_no    = 110
+    action     = "allow"
+    protocol   = "tcp"
+    cidr_block = "0.0.0.0/0"
+    from_port  = 443
+    to_port    = 443
+  }
+
+  egress {
+    rule_no    = 100
+    action     = "allow"
+    protocol   = "-1" # All protocols
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+  tags = merge(var.tags,
+    {
+      Name = "public-nacl"
+    }
+  )
+}
+
+# Private subnet NACL
+resource "aws_network_acl" "private_nacl" {
+  vpc_id     = aws_vpc.terraform-vpc.id
+  subnet_ids = aws_subnet.private[*].id
+
+  ingress {
+    rule_no    = 100
+    action     = "allow"
+    protocol   = "-1" # All protocols
+    cidr_block = aws_vpc.terraform-vpc.cidr_block
+    from_port  = 0
+    to_port    = 0
+  }
+
+  egress {
+    rule_no    = 100
+    action     = "allow"
+    protocol   = "-1" # All protocols
+    cidr_block = "0.0.0.0/0"
+    from_port  = 0
+    to_port    = 0
+  }
+  tags = merge(var.tags,
+    {
+      Name = "private-nacl"
+    }
+  )
+}
