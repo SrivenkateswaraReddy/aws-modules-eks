@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-east-1"  # Replace with your AWS region
-}
-
 resource "aws_eks_cluster" "eks_cluster" {
   name     = var.cluster_name
   version  = var.cluster_version
@@ -24,7 +20,7 @@ resource "aws_eks_node_group" "eks_nodes" {
   node_group_name = var.node_group_name
   node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
   subnet_ids      = data.terraform_remote_state.vpc.outputs.private_subnet_ids
-  instance_types  = [var.node_instance_type]  # Ensure this is a single instance type
+  instance_types  = [var.node_instance_type] # Ensure this is a single instance type
 
   scaling_config {
     desired_size = var.node_desired_size
