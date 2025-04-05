@@ -35,10 +35,11 @@ on:
         description: "Terraform Module to Deploy (vpc, s3, sns, eks)"
         required: true
         type: choice
-        default: "vpc"
+        default: "iam"
         options:
-          - vpc
           - iam
+          - vpc
+          - eks
 
 jobs:
   terraform:
@@ -55,6 +56,7 @@ jobs:
       TF_WORKING_DIR: ${{ github.event.inputs.module && format('./{0}', github.event.inputs.module) || './' }}
       TF_VAR_FILE: ${{ github.event.inputs.environment && format('variables/{0}.tfvars', github.event.inputs.environment) || 'variables/dev.tfvars' }}
       S3_KEY: ${{ github.event.inputs.module && format('modules/{0}/terraform.tfstate', github.event.inputs.module) || 'modules/vpc/terraform.tfstate' }}
+      s3_bucket_details: ${{ vars.S3_BUCKET_DETAILS }}
 
     permissions:
       id-token: write # This is required for requesting the JWT
