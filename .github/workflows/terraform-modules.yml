@@ -38,6 +38,7 @@ on:
         default: "vpc"
         options:
           - vpc
+          - iam
 
 jobs:
   terraform:
