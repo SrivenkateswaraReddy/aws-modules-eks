@@ -42,3 +42,8 @@ output "private_nacl_id" {
   description = "ID of the private Network ACL"
   value       = aws_network_acl.private_nacl.id
 }
+
+output "private_subnet_cidrs" {
+  value       = aws_subnet.private[*].cidr_block
+  description = "List of private subnet CIDR blocks"
+}
