@@ -4,7 +4,7 @@ variable "tags" {
   default     = {}
 }
 
-variable "s3_bucket_details" {}
+# variable "s3_bucket_details" {}
 
 variable "cluster_name" {
   type = string
