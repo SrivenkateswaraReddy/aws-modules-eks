@@ -28,11 +28,16 @@ resource "kubernetes_config_map" "aws_auth" {
 
   data = {
     mapRoles = <<YAML
-    - rolearn: ${data.terraform_remote_state.iam.eks_node_role_arn}
+    - rolearn: ${data.terraform_remote_state.iam.outputs.eks_node_role_arn}  # Verify output name
       username: system:node:{{EC2PrivateDNSName}}
       groups:
         - system:bootstrappers
         - system:nodes
     YAML
   }
+
+  depends_on = [
+    aws_eks_cluster.eks_cluster,
+    data.terraform_remote_state.iam  # Ensure IAM state is available
+  ]
 }
