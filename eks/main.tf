@@ -7,12 +7,12 @@ resource "aws_eks_cluster" "eks_cluster" {
     subnet_ids         = data.terraform_remote_state.vpc.outputs.private_subnet_ids
     security_group_ids = [aws_security_group.eks_cluster_sg.id]
   }
-
-  tags = {
-    Name        = var.cluster_name
-    Environment = "dev"
-    ManagedBy   = "terraform"
-  }
+  tags = merge(var.tags,
+    {
+      Name      = var.cluster_name
+      ManagedBy = "terraform"
+    }
+  )
 }
 
 resource "aws_eks_node_group" "eks_nodes" {
@@ -33,11 +33,14 @@ resource "aws_eks_node_group" "eks_nodes" {
   #   source_security_group_ids = [aws_security_group.eks_node_sg.id]
   # }
 
-  tags = {
-    Name        = var.node_group_name
-    Environment = "dev"
-    ManagedBy   = "terraform"
-  }
+
+
+  tags = merge(var.tags,
+    {
+      Name      = var.node_group_name
+      ManagedBy = "terraform"
+    }
+  )
 
   depends_on = [aws_eks_cluster.eks_cluster]
 }

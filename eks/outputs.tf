@@ -23,7 +23,3 @@ output "eks_node_group_instance_types" {
   description = "The EC2 instance types used in the EKS node group"
 }
 
-output "referenced_eks_cluster_name" {
-  value       = data.terraform_remote_state.eks.outputs.eks_cluster_name
-  description = "The name of the referenced EKS cluster"
-}
