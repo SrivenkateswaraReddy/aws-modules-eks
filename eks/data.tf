@@ -38,6 +38,6 @@ resource "kubernetes_config_map" "aws_auth" {
 
   depends_on = [
     aws_eks_cluster.eks_cluster,
-    data.terraform_remote_state.iam  # Ensure IAM state is available
+    data.terraform_remote_state.iam # Ensure IAM state is available
   ]
 }
