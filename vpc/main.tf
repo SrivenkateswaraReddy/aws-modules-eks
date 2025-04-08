@@ -124,14 +124,14 @@ resource "aws_network_acl" "public_nacl" {
     to_port    = 443
   }
 
-  ingress {
-    rule_no    = 120
-    action     = "allow"
-    protocol   = "tcp"
-    cidr_block = aws_subnet.public.cidr_block
-    from_port  = 22
-    to_port    = 22
-  }
+  # ingress {
+  #   rule_no    = 120
+  #   action     = "allow"
+  #   protocol   = "tcp"
+  #   cidr_block = aws_subnet.public.cidr_block
+  #   from_port  = 22
+  #   to_port    = 22
+  # }
 
   egress {
     rule_no    = 100

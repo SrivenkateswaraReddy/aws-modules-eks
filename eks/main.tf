@@ -4,9 +4,14 @@ resource "aws_eks_cluster" "eks_cluster" {
   role_arn = data.terraform_remote_state.iam.outputs.eks_cluster_role_arn
 
   vpc_config {
-    subnet_ids         = data.terraform_remote_state.vpc.outputs.private_subnet_ids
-    security_group_ids = [aws_security_group.eks_cluster_sg.id]
+    subnet_ids              = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+    security_group_ids      = [aws_security_group.eks_cluster_sg.id]
+    endpoint_private_access = true
+    endpoint_public_access  = true
   }
+  depends_on = [
+    data.terraform_remote_state.iam.outputs.eks_cluster_policy_attachment
+  ]
   tags = merge(var.tags,
     {
       Name      = var.cluster_name
@@ -42,6 +47,9 @@ resource "aws_eks_node_group" "eks_nodes" {
       ManagedBy = "terraform"
     }
   )
-
-  depends_on = [aws_eks_cluster.eks_cluster]
+  depends_on = [
+    data.terraform_remote_state.iam.outputs.eks_worker_node_policy_attachment,
+    data.terraform_remote_state.iam.outputs.eks_cni_policy_attachment,
+    data.terraform_remote_state.iam.outputs.eks_container_registry_policy_attachment
+  ]
 }
