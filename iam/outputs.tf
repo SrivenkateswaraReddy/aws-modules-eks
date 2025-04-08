@@ -25,15 +25,15 @@ output "eks_node_role_name" {
 
 output "node_worker_policy_attachment_id" {
   description = "The ID of the policy attachment for the EKS Node role (Worker Policy)"
-  value       = aws_iam_role_policy_attachment.node_worker_policy.id
+  value       = aws_iam_role_policy_attachment.eks_worker_node_policy.id
 }
 
 output "node_cni_policy_attachment_id" {
   description = "The ID of the policy attachment for the EKS Node role (CNI Policy)"
-  value       = aws_iam_role_policy_attachment.node_cni_policy.id
+  value       = aws_iam_role_policy_attachment.eks_cni_policy.id
 }
 
 output "node_ecr_policy_attachment_id" {
   description = "The ID of the policy attachment for the EKS Node role (ECR ReadOnly Policy)"
-  value       = aws_iam_role_policy_attachment.node_ecr_policy.id
+  value       = aws_iam_role_policy_attachment.eks_container_registry_policy.id
 }
