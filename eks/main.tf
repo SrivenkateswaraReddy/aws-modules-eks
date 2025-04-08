@@ -47,9 +47,9 @@ resource "aws_eks_node_group" "eks_nodes" {
       ManagedBy = "terraform"
     }
   )
-  depends_on = [
-    data.terraform_remote_state.iam.outputs.eks_worker_node_policy_attachment,
-    data.terraform_remote_state.iam.outputs.eks_cni_policy_attachment,
-    data.terraform_remote_state.iam.outputs.eks_container_registry_policy_attachment
-  ]
+  # depends_on = [
+  #   data.terraform_remote_state.iam.outputs.eks_worker_node_policy_attachment,
+  #   data.terraform_remote_state.iam.outputs.eks_cni_policy_attachment,
+  #   data.terraform_remote_state.iam.outputs.eks_container_registry_policy_attachment
+  # ]
 }
