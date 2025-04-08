@@ -21,7 +21,7 @@ resource "aws_eks_cluster" "eks_cluster" {
 }
 
 resource "aws_eks_node_group" "eks_nodes" {
-  ami_type        = "AL2_x86_64" # Amazon Linux 2
+  ami_type        = "AL2_ARM_64" # Amazon Linux 2
   cluster_name    = aws_eks_cluster.eks_cluster.name
   node_group_name = var.node_group_name
   node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
