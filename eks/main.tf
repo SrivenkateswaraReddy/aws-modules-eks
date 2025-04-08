@@ -1,55 +1,44 @@
-resource "aws_eks_cluster" "eks_cluster" {
-  name     = var.cluster_name
-  version  = var.cluster_version
-  role_arn = data.terraform_remote_state.iam.outputs.eks_cluster_role_arn
+module "eks" {
+  source          = "terraform-aws-modules/eks/aws"
+  version         = "20.35.0"
+  cluster_name    = "your-cluster-name"
+  cluster_version = "1.32"
 
-  vpc_config {
-    subnet_ids              = data.terraform_remote_state.vpc.outputs.private_subnet_ids
-    security_group_ids      = [aws_security_group.eks_cluster_sg.id]
-    endpoint_private_access = true
-    endpoint_public_access  = true
-  }
-  # depends_on = [
-  #   data.terraform_remote_state.iam.outputs.eks_cluster_policy_attachment
-  # ]
-  tags = merge(var.tags,
-    {
-      Name      = var.cluster_name
-      ManagedBy = "terraform"
-    }
-  )
-}
+  vpc_id                                = data.terraform_remote_state.vpc.outputs.vpc_id
+  subnet_ids                            = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+  cluster_endpoint_public_access        = var.cluster_endpoint_public_access
+  cluster_endpoint_private_access       = var.cluster_endpoint_private_access
+  enable_irsa                           = true
+  create_iam_role                       = false
+  cluster_ip_family                     = var.cluster_ip_family
+  iam_role_arn                          = local.eks_cluster_role_arn
+  cluster_security_group_id             = aws_security_group.eks_cluster_sg.id
+  cluster_additional_security_group_ids = [aws_security_group.eks_node_sg.id]
 
-resource "aws_eks_node_group" "eks_nodes" {
-  ami_type        = "AL2_ARM_64" # Amazon Linux 2
-  cluster_name    = aws_eks_cluster.eks_cluster.name
-  node_group_name = var.node_group_name
-  node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
-  subnet_ids      = data.terraform_remote_state.vpc.outputs.private_subnet_ids
-  instance_types  = [var.node_instance_type] # Ensure this is a single instance type
 
-  scaling_config {
-    desired_size = var.node_desired_size
-    min_size     = var.node_min_size
-    max_size     = var.node_max_size
+  cluster_compute_config = {
+    enabled    = var.cluster_compute_config_enabled
+    node_pools = var.cluster_node_pools
   }
 
-  # remote_access {
-  #   ec2_ssh_key               = "your-key"  # Replace with your SSH key name
-  #   source_security_group_ids = [aws_security_group.eks_node_sg.id]
-  # }
+  eks_managed_node_groups = {
+    general = {
+      desired_size = var.node_group_desired_size
+      max_size     = var.node_group_max_size
+      min_size     = var.node_group_min_size
 
+      instance_types = var.node_group_instance_types
+      capacity_type  = var.node_group_capacity_type
 
+      ami_type  = var.node_group_ami_type
+      disk_size = var.node_group_disk_size
 
-  tags = merge(var.tags,
-    {
-      Name      = var.node_group_name
-      ManagedBy = "terraform"
+      labels = var.node_group_labels
+
+      taints = var.node_group_taints
+
+      create_iam_role = false
+      iam_role_arn    = local.eks_node_role_arn
     }
-  )
-  # depends_on = [
-  #   data.terraform_remote_state.iam.outputs.eks_worker_node_policy_attachment,
-  #   data.terraform_remote_state.iam.outputs.eks_cni_policy_attachment,
-  #   data.terraform_remote_state.iam.outputs.eks_container_registry_policy_attachment
-  # ]
+  }
 }

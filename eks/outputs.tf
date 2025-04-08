@@ -1,25 +1,59 @@
-output "eks_cluster_name" {
-  value       = aws_eks_cluster.eks_cluster.name
+output "cluster_name" {
   description = "The name of the EKS cluster"
+  value       = module.eks.cluster_name
 }
 
-output "eks_cluster_arn" {
-  value       = aws_eks_cluster.eks_cluster.arn
+output "cluster_endpoint" {
+  description = "The endpoint for the EKS cluster"
+  value       = module.eks.cluster_endpoint
+}
+
+output "cluster_security_group_id" {
+  description = "The security group ID for the EKS cluster"
+  value       = module.eks.cluster_security_group_id
+}
+
+output "node_group_iam_role_arn" {
+  description = "The ARN of the IAM role for the node group"
+  value       = local.eks_node_role_arn
+}
+
+output "cluster_arn" {
   description = "The ARN of the EKS cluster"
+  value       = module.eks.cluster_arn
 }
 
-output "eks_cluster_endpoint" {
-  value       = aws_eks_cluster.eks_cluster.endpoint
-  description = "The endpoint URL of the EKS cluster"
+output "cluster_certificate_authority_data" {
+  description = "The base64-encoded certificate data required to communicate with the cluster"
+  value       = module.eks.cluster_certificate_authority_data
 }
 
-output "eks_node_group_name" {
-  value       = aws_eks_node_group.eks_nodes.node_group_name
-  description = "The name of the EKS node group"
+output "cluster_oidc_issuer_url" {
+  description = "The URL on the EKS cluster OIDC Issuer"
+  value       = module.eks.cluster_oidc_issuer_url
 }
 
-output "eks_node_group_instance_types" {
-  value       = aws_eks_node_group.eks_nodes.instance_types
-  description = "The EC2 instance types used in the EKS node group"
+output "cluster_kubeconfig" {
+  description = "The kubeconfig for the EKS cluster"
+  value       = module.eks.kubeconfig
 }
 
+output "cluster_kubeconfig_filename" {
+  description = "The filename of the kubeconfig for the EKS cluster"
+  value       = module.eks.kubeconfig_filename
+}
+
+output "cluster_kubeconfig_command" {
+  description = "The command to update kubeconfig for the EKS cluster"
+  value       = module.eks.kubeconfig_command
+}
+
+output "cluster_kubectl_commands" {
+  description = "The kubectl commands for the EKS cluster"
+  value       = module.eks.kubectl_commands
+}
+
+output "cluster_kubectl_commands_with_context" {
+  description = "The kubectl commands with context for the EKS cluster"
+  value       = module.eks.kubectl_commands_with_context
+}
