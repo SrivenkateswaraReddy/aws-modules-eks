@@ -33,27 +33,7 @@ output "cluster_oidc_issuer_url" {
   value       = module.eks.cluster_oidc_issuer_url
 }
 
-output "cluster_kubeconfig" {
-  description = "The kubeconfig for the EKS cluster"
-  value       = module.eks.kubeconfig
-}
-
-output "cluster_kubeconfig_filename" {
-  description = "The filename of the kubeconfig for the EKS cluster"
-  value       = module.eks.kubeconfig_filename
-}
-
-output "cluster_kubeconfig_command" {
-  description = "The command to update kubeconfig for the EKS cluster"
-  value       = module.eks.kubeconfig_command
-}
-
-output "cluster_kubectl_commands" {
-  description = "The kubectl commands for the EKS cluster"
-  value       = module.eks.kubectl_commands
-}
-
-output "cluster_kubectl_commands_with_context" {
-  description = "The kubectl commands with context for the EKS cluster"
-  value       = module.eks.kubectl_commands_with_context
+output "update_kubeconfig_command" {
+  description = "Command to update kubeconfig for the EKS cluster"
+  value       = "aws eks --region ${var.region} update-kubeconfig --name ${module.eks.cluster_name}"
 }

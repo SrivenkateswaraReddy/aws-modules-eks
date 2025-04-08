@@ -1,3 +1,9 @@
+variable "region" {
+  description = "The AWS region to deploy resources"
+  type        = string
+  default     = "us-east-1"
+}
+
 variable "eks_module_version" {
   description = "The version of the EKS module to use"
   type        = string
