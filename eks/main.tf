@@ -9,9 +9,9 @@ resource "aws_eks_cluster" "eks_cluster" {
     endpoint_private_access = true
     endpoint_public_access  = true
   }
-  depends_on = [
-    data.terraform_remote_state.iam.outputs.eks_cluster_policy_attachment
-  ]
+  # depends_on = [
+  #   data.terraform_remote_state.iam.outputs.eks_cluster_policy_attachment
+  # ]
   tags = merge(var.tags,
     {
       Name      = var.cluster_name
