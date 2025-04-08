@@ -16,28 +16,32 @@ data "terraform_remote_state" "vpc" {
   }
 }
 
-data "aws_eks_cluster_auth" "cluster" {
+data "aws_eks_cluster" "cluster" {
   name = aws_eks_cluster.eks_cluster.name
 }
 
-resource "kubernetes_config_map" "aws_auth" {
-  metadata {
-    name      = "aws-auth"
-    namespace = "kube-system"
-  }
-
-  data = {
-    mapRoles = <<YAML
-    - rolearn: ${data.terraform_remote_state.iam.outputs.eks_node_role_arn}  # Verify output name
-      username: system:node:{{EC2PrivateDNSName}}
-      groups:
-        - system:bootstrappers
-        - system:nodes
-    YAML
-  }
-
-  depends_on = [
-    aws_eks_cluster.eks_cluster,
-    data.terraform_remote_state.iam # Ensure IAM state is available
-  ]
+data "aws_eks_cluster_auth" "cluster" {
+  name = data.aws_eks_cluster.cluster.name
 }
+
+# resource "kubernetes_config_map" "aws_auth" {
+#   metadata {
+#     name      = "aws-auth"
+#     namespace = "kube-system"
+#   }
+
+#   data = {
+#     mapRoles = <<YAML
+#     - rolearn: ${data.terraform_remote_state.iam.outputs.eks_node_role_arn}  # Verify output name
+#       username: system:node:{{EC2PrivateDNSName}}
+#       groups:
+#         - system:bootstrappers
+#         - system:nodes
+#     YAML
+#   }
+
+#   depends_on = [
+#     aws_eks_cluster.eks_cluster,
+#     data.terraform_remote_state.iam # Ensure IAM state is available
+#   ]
+# }
