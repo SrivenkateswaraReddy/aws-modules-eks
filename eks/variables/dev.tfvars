@@ -1,5 +1,4 @@
-region = "us-east-1"
-
+region                          = "us-east-1"
 eks_module_version              = "20.35.0"
 cluster_name                    = "dev-eks-cluster"
 cluster_version                 = "1.32"
