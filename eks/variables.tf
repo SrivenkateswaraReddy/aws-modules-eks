@@ -107,6 +107,11 @@ variable "node_group_labels" {
   }
 }
 
+variable "iam_role_name" {
+  description = "name of iam role"
+  type        = string
+}
+
 variable "node_group_taints" {
   description = "Taints to apply to the node group"
   type = list(object({

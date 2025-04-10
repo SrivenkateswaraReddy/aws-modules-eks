@@ -15,6 +15,7 @@ node_group_instance_types       = ["t3.medium"]
 node_group_capacity_type        = "ON_DEMAND"
 node_group_ami_type             = "AL2_x86_64"
 node_group_disk_size            = 20
+iam_role_name                   = "tfe-eks"
 node_group_labels = {
   role = "general"
 }
