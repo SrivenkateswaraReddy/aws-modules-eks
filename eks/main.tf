@@ -4,14 +4,14 @@ module "eks" {
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
 
-  vpc_id                                = data.terraform_remote_state.vpc.outputs.vpc_id
-  subnet_ids                            = data.terraform_remote_state.vpc.outputs.public_subnet_ids
-  control_plane_subnet_ids              = data.terraform_remote_state.vpc.outputs.public_subnet_ids
-  cluster_endpoint_public_access        = var.cluster_endpoint_public_access
-  cluster_endpoint_private_access       = var.cluster_endpoint_private_access
-  enable_irsa                           = true
-  create_iam_role                       = true
-  iam_role_name                         = var.iam_role_name
+  vpc_id                          = data.terraform_remote_state.vpc.outputs.vpc_id
+  subnet_ids                      = data.terraform_remote_state.vpc.outputs.public_subnet_ids
+  control_plane_subnet_ids        = data.terraform_remote_state.vpc.outputs.public_subnet_ids
+  cluster_endpoint_public_access  = var.cluster_endpoint_public_access
+  cluster_endpoint_private_access = var.cluster_endpoint_private_access
+  enable_irsa                     = true
+  create_iam_role                 = false
+  # iam_role_name                         = var.iam_role_name
   cluster_ip_family                     = var.cluster_ip_family
   iam_role_arn                          = local.eks_cluster_role_arn
   cluster_security_group_id             = aws_security_group.eks_cluster_sg.id
