@@ -5,8 +5,8 @@ module "eks" {
   cluster_version = var.cluster_version
 
   vpc_id                                = data.terraform_remote_state.vpc.outputs.vpc_id
-  subnet_ids                            = [data.terraform_remote_state.vpc.outputs.private_subnet_ids]
-  control_plane_subnet_ids              = [data.terraform_remote_state.vpc.outputs.private_subnet_ids]
+  subnet_ids                            = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+  control_plane_subnet_ids              = data.terraform_remote_state.vpc.outputs.private_subnet_ids
   cluster_endpoint_public_access        = var.cluster_endpoint_public_access
   cluster_endpoint_private_access       = var.cluster_endpoint_private_access
   enable_irsa                           = true
