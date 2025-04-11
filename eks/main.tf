@@ -23,24 +23,24 @@ module "eks" {
   #   node_pools = var.cluster_node_pools
   # }
 
-  eks_managed_node_groups = {
-    default = {
-      desired_size = var.node_group_desired_size
-      max_size     = var.node_group_max_size
-      min_size     = var.node_group_min_size
+  # eks_managed_node_groups = {
+  #   default = {
+  #     desired_size = var.node_group_desired_size
+  #     max_size     = var.node_group_max_size
+  #     min_size     = var.node_group_min_size
 
-      instance_types = var.node_group_instance_types
-      capacity_type  = var.node_group_capacity_type
+  #     instance_types = var.node_group_instance_types
+  #     capacity_type  = var.node_group_capacity_type
 
-      # ami_type  = var.node_group_ami_type
-      # disk_size = var.node_group_disk_size
+  #     # ami_type  = var.node_group_ami_type
+  #     # disk_size = var.node_group_disk_size
 
-      # labels = var.node_group_labels
+  #     # labels = var.node_group_labels
 
-      # taints = var.node_group_taints
+  #     # taints = var.node_group_taints
 
-      #   create_iam_role = false
-      #   iam_role_arn    = local.eks_node_role_arn
-    }
-  }
+  #     #   create_iam_role = false
+  #     #   iam_role_arn    = local.eks_node_role_arn
+  #   }
+  # }
 }
