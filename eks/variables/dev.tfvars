@@ -28,7 +28,7 @@ node_group_taints = [
 ]
 
 tags = {
-  Environment                                 = "dev"
-  Project                                     = "open-tofu-iac"
-  "kubernetes.io/cluster/${var.cluster_name}" = "owned"
+  Environment                             = "dev"
+  Project                                 = "open-tofu-iac"
+  "kubernetes.io/cluster/dev-eks-cluster" = "owned"
 }
