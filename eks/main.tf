@@ -43,4 +43,9 @@ module "eks" {
   #     #   iam_role_arn    = local.eks_node_role_arn
   #   }
   # }
+  tags = merge(var.tags,
+    {
+      Name = "tfe_vpc"
+    }
+  )
 }

@@ -26,3 +26,9 @@ node_group_taints = [
     effect = "NO_SCHEDULE"
   }
 ]
+
+tags = {
+  Environment                                 = "dev"
+  Project                                     = "open-tofu-iac"
+  "kubernetes.io/cluster/${var.cluster_name}" = "owned"
+}
