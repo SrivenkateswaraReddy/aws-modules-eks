@@ -1,7 +1,7 @@
 region                          = "us-east-1"
 eks_module_version              = "20.35.0"
 cluster_name                    = "dev-eks-cluster"
-cluster_version                 = "1.32"
+cluster_version                 = "1.31"
 cluster_endpoint_public_access  = true
 cluster_endpoint_private_access = true
 enable_irsa                     = true
