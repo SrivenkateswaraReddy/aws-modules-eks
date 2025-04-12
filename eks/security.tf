@@ -4,11 +4,19 @@ resource "aws_security_group" "eks_cluster_sg" {
   vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
 
   ingress {
+    description = "Allow SSH access from private subnets"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+  }
+
+  ingress {
     description = "Allow worker nodes to communicate with the cluster API Server"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = data.terraform_remote_state.vpc.outputs.private_subnet_cidrs
+    cidr_blocks = data.terraform_remote_state.vpc.outputs.private_subnet_ids
   }
 
   egress {
