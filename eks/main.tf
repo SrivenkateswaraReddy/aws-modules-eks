@@ -20,7 +20,7 @@ module "eks" {
     node_pools = var.cluster_node_pools
   }
 
-  eks_managed_node_groups = {
+  self_managed_node_groups = {
     default = {
       desired_size = var.node_group_desired_size
       max_size     = var.node_group_max_size
