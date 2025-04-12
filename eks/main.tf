@@ -4,13 +4,13 @@ module "eks" {
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
 
-  vpc_id                          = data.terraform_remote_state.vpc.outputs.vpc_id
-  subnet_ids                      = data.terraform_remote_state.vpc.outputs.private_subnet_ids
-  control_plane_subnet_ids        = data.terraform_remote_state.vpc.outputs.private_subnet_ids
-  cluster_endpoint_public_access  = var.cluster_endpoint_public_access
-  cluster_endpoint_private_access = var.cluster_endpoint_private_access
-  enable_irsa                     = true
-  create_iam_role                 = false
+  vpc_id                                = data.terraform_remote_state.vpc.outputs.vpc_id
+  subnet_ids                            = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+  control_plane_subnet_ids              = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+  cluster_endpoint_public_access        = var.cluster_endpoint_public_access
+  cluster_endpoint_private_access       = var.cluster_endpoint_private_access
+  enable_irsa                           = true
+  create_iam_role                       = false
   iam_role_name                         = var.iam_role_name
   cluster_ip_family                     = var.cluster_ip_family
   iam_role_arn                          = local.eks_cluster_role_arn
@@ -39,8 +39,8 @@ module "eks" {
 
       taints = var.node_group_taints
 
-        create_iam_role = false
-        iam_role_arn    = local.eks_node_role_arn
+      create_iam_role = false
+      iam_role_arn    = local.eks_node_role_arn
       tags = merge(var.tags,
         {
           Name = "tfe_vpc"
