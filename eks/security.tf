@@ -8,7 +8,8 @@ resource "aws_security_group" "eks_cluster_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = data.terraform_remote_state.vpc.outputs.public_subnet_ids
+    cidr_blocks = [for subnet in data.aws_subnet.private_subnets : subnet.cidr_block]
+
   }
 
   ingress {
@@ -16,7 +17,7 @@ resource "aws_security_group" "eks_cluster_sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = data.terraform_remote_state.vpc.outputs.public_subnet_ids
+    cidr_blocks = [for subnet in data.aws_subnet.private_subnets : subnet.cidr_block]
   }
 
   egress {
