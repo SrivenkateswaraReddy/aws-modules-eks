@@ -20,6 +20,10 @@ module "eks" {
     node_pools = var.cluster_node_pools
   }
 
+  eks_managed_node_group_defaults = {
+    instance_types = var.node_group_instance_types
+  }
+
   eks_managed_node_groups = {
     default = {
       desired_size = var.node_group_desired_size
