@@ -32,8 +32,3 @@ output "private_route_table_id" {
   description = "ID of the private route table"
   value       = aws_route_table.private.id
 }
-
-output "private_nacl_id" {
-  description = "ID of the private Network ACL"
-  value       = aws_network_acl.private_nacl.id
-}
