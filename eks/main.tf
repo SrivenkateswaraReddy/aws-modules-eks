@@ -8,7 +8,7 @@ module "eks" {
   subnet_ids                     = data.terraform_remote_state.vpc.outputs.private_subnet_ids
   cluster_endpoint_public_access = true
   create_iam_role                = false
-  iam_role_arn                   = data.terraform_remote_state.iam.outputs.eks_cluster_role_name
+  iam_role_arn                   = data.terraform_remote_state.iam.outputs.eks_cluster_role_arn
 
 
 
