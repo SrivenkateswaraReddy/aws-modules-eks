@@ -38,9 +38,8 @@ module "eks" {
 }
 
 module "eks_aws_auth" {
-  source  = "terraform-aws-modules/eks/aws/latest/submodules/aws-auth"
-  version = "20.35.0" # Use the same version as your eks module for consistency
-
+  source       = "terraform-aws-modules/eks/aws/latest/submodules/aws-auth"
+  version      = "~> 20.0"
   cluster_name = module.eks.cluster_name
   depends_on   = [module.eks]
 
