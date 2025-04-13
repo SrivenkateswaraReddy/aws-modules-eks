@@ -37,3 +37,23 @@ output "node_ecr_policy_attachment_id" {
   description = "The ID of the policy attachment for the EKS Node role (ECR ReadOnly Policy)"
   value       = aws_iam_role_policy_attachment.eks_container_registry_policy.id
 }
+
+output "eks_block_storage_policy_attachment_id" {
+  description = "The ID of the policy attachment for the EKS Cluster role (Block Storage Policy)"
+  value       = aws_iam_role_policy_attachment.eks_block_storage_policy.id
+}
+
+output "eks_compute_policy_attachment_id" {
+  description = "The ID of the policy attachment for the EKS Cluster role (Compute Policy)"
+  value       = aws_iam_role_policy_attachment.eks_compute_policy.id
+}
+
+output "eks_load_balancing_policy_attachment_id" {
+  description = "The ID of the policy attachment for the EKS Cluster role (Load Balancing Policy)"
+  value       = aws_iam_role_policy_attachment.eks_load_balancing_policy.id
+}
+
+output "eks_networking_policy_attachment_id" {
+  description = "The ID of the policy attachment for the EKS Cluster role (Networking Policy)"
+  value       = aws_iam_role_policy_attachment.eks_networking_policy.id
+}

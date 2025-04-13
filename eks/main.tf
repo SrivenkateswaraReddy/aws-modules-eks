@@ -14,6 +14,17 @@ module "eks" {
   cluster_security_group_id             = aws_security_group.eks_cluster_sg.id
   cluster_additional_security_group_ids = [aws_security_group.eks_node_sg.id]
 
+  enable_cluster_creator_admin_permissions = true
+
+
+
+  cluster_addons = {
+    coredns                = {}
+    eks-pod-identity-agent = {}
+    kube-proxy             = {}
+    vpc-cni                = {}
+  }
+
 
   cluster_compute_config = {
     enabled    = var.cluster_compute_config_enabled
