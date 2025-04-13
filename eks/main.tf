@@ -38,18 +38,16 @@ module "eks" {
 }
 
 module "eks_aws_auth" {
-  source       = "terraform-aws-modules/eks/aws/latest/submodules/aws-auth"
-  version      = "~> 20.0"
-  cluster_name = module.eks.cluster_name
-  depends_on   = [module.eks]
+  source     = "terraform-aws-modules/eks/aws//modules/aws-auth"
+  version    = "~> 20.0"
+  depends_on = [module.eks]
 
-  map_roles = [
+  aws_auth_roles = [
     {
       rolearn  = data.terraform_remote_state.iam.outputs.eks_node_role_arn
       username = "system:node:{{EC2PrivateDNSName}}"
       groups   = ["system:bootstrappers", "system:nodes"]
     },
-    # Add other roles as needed (e.g., for administrators)
     {
       rolearn  = data.terraform_remote_state.iam.outputs.eks_cluster_role_arn
       username = "admin"
@@ -57,17 +55,15 @@ module "eks_aws_auth" {
     }
   ]
 
-  # map_users = [
-  #   # Add any IAM users who need direct kubectl access
-  #   # {
-  #   #   userarn  = "arn:aws:iam::123456789012:user/my-admin-user"
-  #   #   username = "my-admin-user"
-  #   #   groups   = ["system:masters"]
-  #   # }
+  # aws_auth_users = [
+  #   {
+  #     userarn  = "arn:aws:iam::123456789012:user/my-admin-user"
+  #     username = "my-admin-user"
+  #     groups   = ["system:masters"]
+  #   }
   # ]
 
-  # map_accounts = [
-  #   # Add any AWS account IDs whose IAM roles should have access
-  #   # "123456789012",
+  # aws_auth_accounts = [
+  #   "123456789012"
   # ]
 }
