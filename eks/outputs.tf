@@ -13,10 +13,10 @@ output "cluster_security_group_id" {
   value       = module.eks.cluster_security_group_id
 }
 
-output "node_group_iam_role_arn" {
-  description = "The ARN of the IAM role for the node group"
-  value       = local.eks_node_role_arn
-}
+# output "node_group_iam_role_arn" {
+#   description = "The ARN of the IAM role for the node group"
+#   value       = local.eks_node_role_arn
+# }
 
 output "cluster_arn" {
   description = "The ARN of the EKS cluster"

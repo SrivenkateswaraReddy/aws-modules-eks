@@ -35,6 +35,6 @@ module "eks" {
       kube-proxy             = {}
       vpc-cni                = {}
     }
-    bootstrap_self_managed_addons = true
+    # bootstrap_self_managed_addons = true
   }
 }
