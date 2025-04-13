@@ -1,54 +1,40 @@
 module "eks" {
-  source          = "terraform-aws-modules/eks/aws"
-  version         = "20.35.0"
-  cluster_name    = var.cluster_name
-  cluster_version = var.cluster_version
+  source                         = "terraform-aws-modules/eks/aws"
+  version                        = "20.35.0"
+  cluster_name                   = var.cluster_name
+  cluster_version                = var.cluster_version
+  authentication_mode            = var.authentication_mode
+  vpc_id                         = data.terraform_remote_state.vpc.outputs.vpc_id
+  subnet_ids                     = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+  cluster_endpoint_public_access = true
+  create_iam_role                = false
+  iam_role_arn                   = data.terraform_remote_state.iam.outputs.eks_cluster_role_name
 
-  vpc_id                                = data.terraform_remote_state.vpc.outputs.vpc_id
-  subnet_ids                            = data.terraform_remote_state.vpc.outputs.private_subnet_ids
-  cluster_endpoint_public_access        = true
-  create_iam_role                       = true
-  iam_role_name                         = var.iam_role_name
-  cluster_ip_family                     = var.cluster_ip_family
-  iam_role_arn                          = local.eks_cluster_role_arn
-  cluster_security_group_id             = aws_security_group.eks_cluster_sg.id
-  cluster_additional_security_group_ids = [aws_security_group.eks_node_sg.id]
-
-  enable_cluster_creator_admin_permissions = true
-
-
-
-  cluster_addons = {
-    coredns                = {}
-    eks-pod-identity-agent = {}
-    kube-proxy             = {}
-    vpc-cni                = {}
-  }
 
 
   cluster_compute_config = {
-    enabled    = var.cluster_compute_config_enabled
-    node_pools = var.cluster_node_pools
-  }
-
-  eks_managed_node_group_defaults = {
-    instance_types = var.node_group_instance_types
+    enabled    = true
+    node_pools = var.node_pools
   }
 
   eks_managed_node_groups = {
     default = {
-      desired_size = var.node_group_desired_size
-      max_size     = var.node_group_max_size
-      min_size     = var.node_group_min_size
-
-      instance_types = var.node_group_instance_types
-      capacity_type  = var.node_group_capacity_type
-
+      name            = "default"
+      instance_types  = ["c6g.large"]
+      min_size        = 1
+      max_size        = 3
+      desired_size    = 2
+      ami_type        = "AL2_ARM_64"
+      iam_role_arn    = data.terraform_remote_state.iam.outputs.eks_node_role_arn
+      create_iam_role = false
     }
+
+    cluster_addons = {
+      coredns                = {}
+      eks-pod-identity-agent = {}
+      kube-proxy             = {}
+      vpc-cni                = {}
+    }
+    bootstrap_self_managed_addons = true
   }
-  tags = merge(var.tags,
-    {
-      Name = "tfe_vpc"
-    }
-  )
 }

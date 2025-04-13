@@ -1,31 +1,21 @@
-region                          = "us-east-1"
-eks_module_version              = "20.35.0"
-cluster_name                    = "dev-eks-cluster"
-cluster_version                 = "1.32"
-cluster_endpoint_public_access  = true
-cluster_endpoint_private_access = true
-enable_irsa                     = true
-cluster_ip_family               = "ipv4"
-cluster_compute_config_enabled  = true
-cluster_node_pools              = ["general-purpose"]
-node_group_desired_size         = 1
-node_group_max_size             = 3
-node_group_min_size             = 1
-node_group_instance_types       = ["t3.medium"]
-node_group_capacity_type        = "ON_DEMAND"
-node_group_ami_type             = "AL2023_x86_64_STANDARD"
-node_group_disk_size            = 20
-iam_role_name                   = "tfe-eks"
-node_group_labels = {
-  role = "general"
-}
-node_group_taints = [
-  {
-    key    = "dedicated"
-    value  = "general"
-    effect = "NO_SCHEDULE"
+region              = "us-east-1"
+cluster_name        = "dev-eks-cluster"
+cluster_version     = "1.32"
+authentication_mode = "API_AND_CONFIG_MAP"
+node_pools          = ["system", "general-purpose"]
+
+eks_managed_node_groups = {
+  default = {
+    name           = "default"
+    instance_types = ["c6g.large"]
+    min_size       = 1
+    max_size       = 3
+    desired_size   = 2
+    ami_type       = "AL2_ARM_64"
+    # iam_role_arn    = "arn:aws:iam::123456789012:role/eks-node-role" # Replace with your actual IAM role ARN
+    create_iam_role = false
   }
-]
+}
 
 tags = {
   Environment                             = "dev"
