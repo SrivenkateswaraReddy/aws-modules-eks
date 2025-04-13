@@ -10,12 +10,10 @@ module "eks" {
   create_iam_role                = false
   iam_role_arn                   = data.terraform_remote_state.iam.outputs.eks_cluster_role_arn
 
-
-
-  cluster_compute_config = {
-    enabled    = true
-    node_pools = var.node_pools
-  }
+  # cluster_compute_config = {
+  #   enabled    = true
+  #   node_pools = var.node_pools
+  # }
 
   eks_managed_node_groups = {
     default = {
@@ -23,7 +21,7 @@ module "eks" {
       instance_types  = ["c6g.large"]
       min_size        = 1
       max_size        = 3
-      desired_size    = 2
+      desired_size    = 1
       ami_type        = "AL2_ARM_64"
       iam_role_arn    = data.terraform_remote_state.iam.outputs.eks_node_role_arn
       create_iam_role = false

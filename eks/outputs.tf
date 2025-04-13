@@ -18,6 +18,11 @@ output "cluster_security_group_id" {
 #   value       = local.eks_node_role_arn
 # }
 
+output "iam_user_arm" {
+  value = data.aws_iam_user.admin_user.arn
+}
+
+
 output "cluster_arn" {
   description = "The ARN of the EKS cluster"
   value       = module.eks.cluster_arn

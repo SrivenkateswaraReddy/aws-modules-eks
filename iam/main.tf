@@ -14,10 +14,7 @@ resource "aws_iam_role" "eks_cluster_role" {
 
     }]
   })
-  tags = merge(var.tags,
-    {
-      Name = "tfe_vpc"
-    }
+  tags = merge(var.tags
   )
 }
 

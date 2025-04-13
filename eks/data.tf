@@ -21,7 +21,12 @@ data "aws_subnet" "private_subnets" {
   id       = each.value
 }
 
+data "aws_iam_user" "admin_user" {
+  user_name = "Vickys"
+}
+
 # locals {
 #   eks_cluster_role_arn = data.terraform_remote_state.iam.outputs.eks_cluster_role_arn
 #   eks_node_role_arn    = data.terraform_remote_state.iam.outputs.eks_node_role_arn
 # }
+
