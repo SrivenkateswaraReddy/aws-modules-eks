@@ -46,12 +46,19 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_eip" "nat" {
-  domain = "vpc"
+  domain     = "vpc"
+  depends_on = [aws_internet_gateway.igw]
+  tags = merge(var.tags,
+    {
+      Name = "tfe-epi-nat"
+    }
+  )
 }
 
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat.id
   subnet_id     = aws_subnet.public[0].id
+  depends_on    = [aws_internet_gateway.igw]
   tags = merge(var.tags,
     {
       Name = "main-nat"

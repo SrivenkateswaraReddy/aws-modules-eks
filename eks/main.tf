@@ -89,6 +89,9 @@ resource "aws_eks_node_group" "system" {
     max_size     = 2
     min_size     = 1
   }
+  update_config {
+    max_unavailable = 1
+  }
 
   instance_types = ["t3.small"]
   ami_type       = "AL2_x86_64"
