@@ -1,3 +1,5 @@
+[![Terraform](https://github.com/SrivenkateswaraReddy/aws-modules-eks/actions/workflows/terraform-modules.yml/badge.svg)](https://github.com/SrivenkateswaraReddy/aws-modules-eks/actions/workflows/terraform-modules.yml)
+
 # AWS Modules - EKS
 
 A modular approach for deploying and managing an Amazon Elastic Kubernetes Service (EKS) cluster on AWS using Terraform. This repository provides reusable, configurable modules to simplify the deployment of EKS clusters and associated resources.
