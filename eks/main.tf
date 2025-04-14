@@ -1,69 +1,143 @@
-module "eks" {
-  source                         = "terraform-aws-modules/eks/aws"
-  version                        = "20.35.0"
-  cluster_name                   = var.cluster_name
-  cluster_version                = var.cluster_version
-  authentication_mode            = var.authentication_mode
-  vpc_id                         = data.terraform_remote_state.vpc.outputs.vpc_id
-  subnet_ids                     = data.terraform_remote_state.vpc.outputs.private_subnet_ids
-  cluster_endpoint_public_access = true
-  create_iam_role                = false
-  iam_role_arn                   = data.terraform_remote_state.iam.outputs.eks_cluster_role_arn
+resource "aws_eks_cluster" "dev-eks-cluster" {
+  name = "dev-eks-cluster"
 
-  # cluster_compute_config = {
-  #   enabled    = true
-  #   node_pools = var.node_pools
-  # }
+  access_config {
+    authentication_mode                         = "API_AND_CONFIG_MAP"
+    bootstrap_cluster_creator_admin_permissions = true
 
-  eks_managed_node_groups = {
-    default = {
-      name            = "default"
-      instance_types  = ["c6g.large"]
-      min_size        = 1
-      max_size        = 3
-      desired_size    = 1
-      ami_type        = "AL2_ARM_64"
-      iam_role_arn    = data.terraform_remote_state.iam.outputs.eks_node_role_arn
-      create_iam_role = false
+  }
+
+  role_arn = data.terraform_remote_state.iam.outputs.eks_cluster_role_arn
+  version  = "1.32"
+
+  vpc_config {
+    subnet_ids              = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+    security_group_ids      = [aws_security_group.eks_node_sg.id]
+    endpoint_private_access = true
+    endpoint_public_access  = true
+  }
+
+  compute_config {
+    enabled       = true
+    node_pools    = ["general-purpose", "system"]
+    node_role_arn = data.terraform_remote_state.iam.outputs.eks_node_role_arn
+  }
+
+  kubernetes_network_config {
+    elastic_load_balancing {
+      enabled = true
     }
+  }
 
-    cluster_addons = {
-      coredns                = {}
-      eks-pod-identity-agent = {}
-      kube-proxy             = {}
-      vpc-cni                = {}
+  storage_config {
+    block_storage {
+      enabled = true
     }
-    # bootstrap_self_managed_addons = true
+  }
+
+
+  tags = {
+    Project     = "open-tofu-iac"
+    Environment = "dev"
+    Name        = "tfe_vpc"
+  }
+  tags_all = {
+    "Environment"                           = "dev"
+    "Name"                                  = "tfe_vpc"
+    "Project"                               = "open-tofu-iac"
+    "kubernetes.io/cluster/dev-eks-cluster" = "owned"
+  }
+  # Ensure that IAM Role permissions are created before and deleted
+  # after EKS Cluster handling. Otherwise, EKS will not be able to
+  # properly delete EKS managed EC2 infrastructure such as Security Groups.
+}
+
+resource "aws_eks_node_group" "general-purpose" {
+  cluster_name    = aws_eks_cluster.dev-eks-cluster.name
+  node_group_name = "general-purpose"
+  node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
+
+  subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 4
+    min_size     = 1
+  }
+
+  instance_types = ["t3.medium"]
+  ami_type       = "AL2_x86_64"
+  disk_size      = 20
+
+  tags = {
+    Environment                             = "dev"
+    Project                                 = "open-tofu-iac"
+    Name                                    = "general-purpose"
+    "kubernetes.io/cluster/dev-eks-cluster" = "owned"
   }
 }
 
-module "eks_aws_auth" {
-  source     = "terraform-aws-modules/eks/aws//modules/aws-auth"
-  version    = "~> 20.0"
-  depends_on = [module.eks]
+resource "aws_eks_node_group" "system" {
+  cluster_name    = aws_eks_cluster.dev-eks-cluster.name
+  node_group_name = "system"
+  node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
 
-  aws_auth_roles = [
-    {
-      rolearn  = data.terraform_remote_state.iam.outputs.eks_node_role_arn
-      username = "system:node:{{EC2PrivateDNSName}}"
-      groups   = ["system:bootstrappers", "system:nodes"]
-    },
-    {
-      rolearn  = data.terraform_remote_state.iam.outputs.eks_cluster_role_arn
-      username = "admin"
-      groups   = ["system:masters"]
-    }
-  ]
+  subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnet_ids
 
-  # aws_auth_users = [
-  #   {
-  #     userarn  = "arn:aws:iam::123456789012:user/my-admin-user"
-  #     username = "my-admin-user"
-  #     groups   = ["system:masters"]
-  #   }
-  # ]
+  scaling_config {
+    desired_size = 1
+    max_size     = 2
+    min_size     = 1
+  }
 
-  # aws_auth_accounts = [
-  #   "123456789012"
-  # ]
+  instance_types = ["t3.small"]
+  ami_type       = "AL2_x86_64"
+  disk_size      = 20
+
+  tags = {
+    Environment                             = "dev"
+    Project                                 = "open-tofu-iac"
+    Name                                    = "system"
+    "kubernetes.io/cluster/dev-eks-cluster" = "owned"
+  }
+}
+
+resource "aws_security_group" "eks_node_sg" {
+  name        = "eks-node-sg"
+  description = "Security group for EKS nodes"
+  vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
+
+  tags = {
+    Name        = "eks-node-sg"
+    Environment = "dev"
+    Project     = "open-tofu-iac"
+  }
+}
+
+resource "aws_security_group_rule" "eks_node_ingress_ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.eks_node_sg.id
+}
+
+resource "aws_security_group_rule" "eks_node_ingress_https" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.eks_node_sg.id
+}
+
+
+resource "aws_security_group_rule" "eks_node_egress_all" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.eks_node_sg.id
 }
