@@ -141,3 +141,8 @@ resource "aws_security_group_rule" "eks_node_egress_all" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.eks_node_sg.id
 }
+
+resource "aws_eks_addon" "example" {
+  cluster_name = aws_eks_cluster.dev-eks-cluster.name
+  addon_name   = "vpc-cni"
+}
