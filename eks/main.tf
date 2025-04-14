@@ -34,7 +34,7 @@ resource "aws_eks_cluster" "dev-eks-cluster" {
       enabled = true
     }
   }
-
+  bootstrap_self_managed_addons = false
 
   tags = {
     Project     = "open-tofu-iac"
