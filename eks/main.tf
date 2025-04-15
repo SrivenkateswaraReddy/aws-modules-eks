@@ -18,7 +18,7 @@ resource "aws_eks_cluster" "dev-eks-cluster" {
   }
 
   compute_config {
-    enabled    = false
+    enabled = false
     # node_pools = ["general-purpose"]
     # node_role_arn = data.terraform_remote_state.iam.outputs.eks_node_role_arn
   }
