@@ -18,7 +18,7 @@ resource "aws_eks_cluster" "dev-eks-cluster" {
   }
 
   compute_config {
-    enabled       = true
+    enabled       = false
     node_pools    = ["general-purpose"]
     node_role_arn = data.terraform_remote_state.iam.outputs.eks_node_role_arn
   }
@@ -31,10 +31,10 @@ resource "aws_eks_cluster" "dev-eks-cluster" {
 
   storage_config {
     block_storage {
-      enabled = true
+      enabled = false
     }
   }
-  bootstrap_self_managed_addons = false
+  bootstrap_self_managed_addons = true
 
   tags = {
     Project     = "open-tofu-iac"
@@ -77,33 +77,33 @@ resource "aws_eks_cluster" "dev-eks-cluster" {
 #   }
 # }
 
-# resource "aws_eks_node_group" "system" {
-#   cluster_name    = aws_eks_cluster.dev-eks-cluster.name
-#   node_group_name = "system"
-#   node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
+resource "aws_eks_node_group" "system" {
+  cluster_name    = aws_eks_cluster.dev-eks-cluster.name
+  node_group_name = "system"
+  node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
 
-#   subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+  subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnet_ids
 
-#   scaling_config {
-#     desired_size = 1
-#     max_size     = 2
-#     min_size     = 1
-#   }
-#   update_config {
-#     max_unavailable = 1
-#   }
+  scaling_config {
+    desired_size = 1
+    max_size     = 2
+    min_size     = 1
+  }
+  update_config {
+    max_unavailable = 1
+  }
 
-#   instance_types = ["t3.small"]
-#   ami_type       = "AL2_x86_64"
-#   disk_size      = 20
+  instance_types = ["t3.small"]
+  ami_type       = "AL2_x86_64"
+  disk_size      = 20
 
-#   tags = {
-#     Environment                             = "dev"
-#     Project                                 = "open-tofu-iac"
-#     Name                                    = "system"
-#     "kubernetes.io/cluster/dev-eks-cluster" = "owned"
-#   }
-# }
+  tags = {
+    Environment                             = "dev"
+    Project                                 = "open-tofu-iac"
+    Name                                    = "system"
+    "kubernetes.io/cluster/dev-eks-cluster" = "owned"
+  }
+}
 
 resource "aws_security_group" "eks_node_sg" {
   name        = "eks-node-sg"
