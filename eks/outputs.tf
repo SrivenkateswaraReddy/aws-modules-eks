@@ -1,40 +1,64 @@
 output "eks_cluster_name" {
-  description = "The name of the EKS cluster"
   value       = aws_eks_cluster.dev-eks-cluster.name
+  description = "Name of the EKS cluster"
 }
 
-output "eks_cluster_arn" {
-  description = "The Amazon Resource Name (ARN) of the EKS cluster"
-  value       = aws_eks_cluster.dev-eks-cluster.arn
+output "eks_cluster_role_arn" {
+  value       = data.terraform_remote_state.iam.outputs.eks_cluster_role_arn
+  description = "IAM role ARN for the EKS cluster"
 }
 
-output "eks_cluster_endpoint" {
-  description = "The endpoint for your Kubernetes API server"
-  value       = aws_eks_cluster.dev-eks-cluster.endpoint
+output "eks_node_role_arn" {
+  value       = data.terraform_remote_state.iam.outputs.eks_node_role_arn
+  description = "IAM role ARN for the EKS nodes"
 }
 
-output "eks_cluster_kubeconfig" {
-  description = "The kubeconfig for your EKS cluster. Configure your kubectl with this data to interact with your cluster. Note: This output might expose sensitive information."
-  value       = aws_eks_cluster.dev-eks-cluster.kubeconfig
-  sensitive   = true
+output "eks_private_subnet_ids" {
+  value       = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+  description = "Private subnet IDs for the EKS cluster"
 }
 
-output "eks_cluster_certificate_authority_data" {
-  description = "Base64 encoded certificate data required to communicate with the cluster. Use this with the `server` attribute in your kubeconfig."
-  value       = aws_eks_cluster.dev-eks-cluster.certificate_authority.0.data
-}
-
-output "eks_cluster_security_group_ids" {
-  description = "A list of the security group IDs associated with the EKS cluster's VPC configuration."
-  value       = aws_eks_cluster.dev-eks-cluster.vpc_config.0.security_group_ids
-}
-
-output "eks_node_security_group_id" {
-  description = "The ID of the security group attached to the EKS nodes."
+output "eks_security_group_id" {
   value       = aws_security_group.eks_node_sg.id
+  description = "Security group ID for EKS nodes"
 }
 
-output "eks_addon_vpc_cni_status" {
-  description = "The status of the vpc-cni addon."
-  value       = aws_eks_addon.example.status
+output "eks_addon_vpc_cni" {
+  value       = aws_eks_addon.example.addon_name
+  description = "Addon name for VPC CNI"
+}
+
+output "eks_node_sg_name" {
+  value       = aws_security_group.eks_node_sg.name
+  description = "Name of the security group for EKS nodes"
+}
+
+output "eks_node_sg_ingress_ssh" {
+  value = {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  description = "Ingress rule for SSH access to EKS nodes"
+}
+
+output "eks_node_sg_ingress_https" {
+  value = {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  description = "Ingress rule for HTTPS access to EKS nodes"
+}
+
+output "eks_node_sg_egress_all" {
+  value = {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  description = "Egress rule for all traffic from EKS nodes"
 }
