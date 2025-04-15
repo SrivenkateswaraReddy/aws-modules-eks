@@ -123,8 +123,8 @@ resource "aws_eks_node_group" "system" {
     max_unavailable = 1
   }
 
-  instance_types = ["t4g.medium"] 
-  ami_type       = "AL2_ARM_64"   
+  instance_types = ["t4g.medium"]
+  ami_type       = "AL2_ARM_64"
   disk_size      = 20
 
   tags = {
