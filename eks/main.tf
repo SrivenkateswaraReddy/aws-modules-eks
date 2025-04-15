@@ -25,7 +25,7 @@ resource "aws_eks_cluster" "dev-eks-cluster" {
 
   kubernetes_network_config {
     elastic_load_balancing {
-      enabled = true
+      enabled = false
     }
   }
 
