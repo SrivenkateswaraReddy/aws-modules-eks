@@ -8,13 +8,13 @@ resource "aws_iam_role" "eks_cluster_role" {
       Principal = {
         Service = "eks.amazonaws.com"
       },
-      Action = "sts:AssumeRole"
+      Action = [
+        "sts:AssumeRole",
+      "sts:TagSession"]
+
     }]
   })
-  tags = merge(var.tags,
-    {
-      Name = "tfe_vpc"
-    }
+  tags = merge(var.tags
   )
 }
 
@@ -35,7 +35,7 @@ resource "aws_iam_role" "eks_node_role" {
       Principal = {
         Service = "ec2.amazonaws.com"
       },
-      Action = "sts:AssumeRole"
+      Action = ["sts:AssumeRole"]
     }]
   })
   tags = merge(var.tags,
@@ -43,6 +43,24 @@ resource "aws_iam_role" "eks_node_role" {
       Name = "tfe_vpc"
     }
   )
+}
+resource "aws_iam_role_policy_attachment" "eks_compute_policy" {
+  role       = aws_iam_role.eks_cluster_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSComputePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "eks_load_balancing_policy" {
+  role       = aws_iam_role.eks_cluster_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSLoadBalancingPolicy"
+}
+resource "aws_iam_role_policy_attachment" "eks_networking_policy" {
+  role       = aws_iam_role.eks_cluster_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSNetworkingPolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "eks_block_storage_policy" {
+  role       = aws_iam_role.eks_cluster_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSBlockStoragePolicy"
 }
 
 resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {

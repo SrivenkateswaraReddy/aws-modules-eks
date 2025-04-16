@@ -21,10 +21,11 @@ resource "aws_internet_gateway" "igw" {
 #====
 
 resource "aws_subnet" "public" {
-  count             = 2
-  vpc_id            = aws_vpc.terraform-vpc.id
-  cidr_block        = "10.0.${count.index + 1}.0/24"
-  availability_zone = element(["us-east-1a", "us-east-1b"], count.index)
+  count                   = 2
+  vpc_id                  = aws_vpc.terraform-vpc.id
+  cidr_block              = "10.0.${count.index + 1}.0/24"
+  availability_zone       = element(["us-east-1a", "us-east-1b"], count.index)
+  map_public_ip_on_launch = true
   tags = merge(var.tags,
     {
       Name = "public-subnet-${count.index + 1}"
@@ -45,12 +46,19 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_eip" "nat" {
-  domain = "vpc"
+  domain     = "vpc"
+  depends_on = [aws_internet_gateway.igw]
+  tags = merge(var.tags,
+    {
+      Name = "tfe-epi-nat"
+    }
+  )
 }
 
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat.id
   subnet_id     = aws_subnet.public[0].id
+  depends_on    = [aws_internet_gateway.igw]
   tags = merge(var.tags,
     {
       Name = "main-nat"
@@ -99,80 +107,15 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
-# nacl
-
-# Public subnet NACL
-resource "aws_network_acl" "public_nacl" {
-  vpc_id     = aws_vpc.terraform-vpc.id
-  subnet_ids = aws_subnet.public[*].id
-
-  ingress {
-    rule_no    = 100
-    action     = "allow"
-    protocol   = "tcp"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 80
-    to_port    = 80
-  }
-
-  ingress {
-    rule_no    = 110
-    action     = "allow"
-    protocol   = "tcp"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 443
-    to_port    = 443
-  }
-
-  # ingress {
-  #   rule_no    = 120
-  #   action     = "allow"
-  #   protocol   = "tcp"
-  #   cidr_block = aws_subnet.public.cidr_block
-  #   from_port  = 22
-  #   to_port    = 22
-  # }
-
-  egress {
-    rule_no    = 100
-    action     = "allow"
-    protocol   = "-1" # All protocols
-    cidr_block = "0.0.0.0/0"
-    from_port  = 0
-    to_port    = 0
-  }
-  tags = merge(var.tags,
-    {
-      Name = "public-nacl"
-    }
-  )
+resource "aws_vpn_gateway" "vpn_gw" {
+  vpc_id = aws_vpc.terraform-vpc.id
+  tags = merge(var.tags, {
+    Name = "main-vpn-gateway"
+  })
 }
 
-# Private subnet NACL
-resource "aws_network_acl" "private_nacl" {
-  vpc_id     = aws_vpc.terraform-vpc.id
-  subnet_ids = aws_subnet.private[*].id
 
-  ingress {
-    rule_no    = 100
-    action     = "allow"
-    protocol   = "-1" # All protocols
-    cidr_block = aws_vpc.terraform-vpc.cidr_block
-    from_port  = 0
-    to_port    = 0
-  }
-
-  egress {
-    rule_no    = 100
-    action     = "allow"
-    protocol   = "-1" # All protocols
-    cidr_block = "0.0.0.0/0"
-    from_port  = 0
-    to_port    = 0
-  }
-  tags = merge(var.tags,
-    {
-      Name = "private-nacl"
-    }
-  )
+resource "aws_vpn_gateway_attachment" "vpn_attachment" {
+  vpc_id         = aws_vpc.terraform-vpc.id
+  vpn_gateway_id = aws_vpn_gateway.vpn_gw.id
 }

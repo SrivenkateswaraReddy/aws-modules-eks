@@ -16,12 +16,13 @@ on:
       action:
         description: "Action to perform (Apply, Destory or plan)"
         required: true
-        default: "plan"
+        default: "apply"
         type: choice
         options:
+          - plan
           - apply
           - destroy
-          - plan
+          - output
       environment:
         description: "Environment (dev, staging, prod)"
         required: true
@@ -35,7 +36,7 @@ on:
         description: "Terraform Module to Deploy (vpc, s3, sns, eks)"
         required: true
         type: choice
-        default: "iam"
+        default: "eks"
         options:
           - iam
           - vpc
@@ -121,6 +122,6 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       - name: Terraform Output
-        if: success() && github.event.inputs.action == 'apply'
+        if: github.event.inputs.action == 'output' || (success() && github.event.inputs.action == 'apply')
         run: terraform output -json
         working-directory: ${{ env.TF_WORKING_DIR }}
