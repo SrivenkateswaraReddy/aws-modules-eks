@@ -1,5 +1,5 @@
 resource "aws_eks_cluster" "dev-eks-cluster" {
-  name = "dev-eks-cluster"
+  name = var.eks_cluster_name
 
   access_config {
     authentication_mode                         = "API_AND_CONFIG_MAP"
@@ -8,7 +8,7 @@ resource "aws_eks_cluster" "dev-eks-cluster" {
   }
 
   role_arn = data.terraform_remote_state.iam.outputs.eks_cluster_role_arn
-  version  = "1.32"
+  version  = var.eks_cluster_version
 
   vpc_config {
     subnet_ids              = data.terraform_remote_state.vpc.outputs.private_subnet_ids
@@ -52,59 +52,6 @@ resource "aws_eks_cluster" "dev-eks-cluster" {
   # properly delete EKS managed EC2 infrastructure such as Security Groups.
 }
 
-# resource "aws_eks_node_group" "general-purpose" {
-#   cluster_name    = aws_eks_cluster.dev-eks-cluster.name
-#   node_group_name = "general-purpose"
-#   node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
-
-#   subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnet_ids
-
-#   scaling_config {
-#     desired_size = 2
-#     max_size     = 4
-#     min_size     = 1
-#   }
-
-#   instance_types = ["t3.medium"]
-#   ami_type       = "AL2_x86_64"
-#   disk_size      = 20
-
-#   tags = {
-#     Environment                             = "dev"
-#     Project                                 = "open-tofu-iac"
-#     Name                                    = "general-purpose"
-#     "kubernetes.io/cluster/dev-eks-cluster" = "owned"
-#   }
-# }
-
-# resource "aws_eks_node_group" "system" {
-#   cluster_name    = aws_eks_cluster.dev-eks-cluster.name
-#   node_group_name = "system"
-#   node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
-
-#   subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnet_ids
-
-#   scaling_config {
-#     desired_size = 1
-#     max_size     = 2
-#     min_size     = 1
-#   }
-#   update_config {
-#     max_unavailable = 1
-#   }
-
-#   instance_types = ["t3.small"]
-#   ami_type       = "AL2_x86_64"
-#   disk_size      = 20
-
-#   tags = {
-#     Environment                             = "dev"
-#     Project                                 = "open-tofu-iac"
-#     Name                                    = "system"
-#     "kubernetes.io/cluster/dev-eks-cluster" = "owned"
-#   }
-# }
-
 
 resource "aws_eks_node_group" "system" {
   cluster_name    = aws_eks_cluster.dev-eks-cluster.name
@@ -123,9 +70,18 @@ resource "aws_eks_node_group" "system" {
     max_unavailable = 1
   }
 
-  instance_types = ["t4g.medium"]
-  ami_type       = "AL2_ARM_64"
-  disk_size      = 20
+  #   instance_types = ["t3.medium"]
+  #   ami_type       = "AL2_x86_64"
+  #   disk_size      = 20
+
+  #   instance_types = ["t3.small"]
+  #   ami_type       = "AL2_x86_64"
+  #   disk_size      = 20
+
+
+  instance_types = [var.graviton_instance_type]
+  ami_type       = var.ami_type_graviton
+  disk_size      = var.node_disk_size 
 
   tags = {
     Environment                             = "dev"
@@ -134,8 +90,6 @@ resource "aws_eks_node_group" "system" {
     "kubernetes.io/cluster/dev-eks-cluster" = "owned"
   }
 }
-
-
 
 resource "aws_security_group" "eks_node_sg" {
   name        = "eks-node-sg"
@@ -177,7 +131,15 @@ resource "aws_security_group_rule" "eks_node_egress_all" {
   security_group_id = aws_security_group.eks_node_sg.id
 }
 
-# resource "aws_eks_addon" "example" {
-#   cluster_name = aws_eks_cluster.dev-eks-cluster.name
-#   addon_name   = "vpc-cni"
-# }
+resource "aws_eks_addon" "example" {
+  cluster_name = aws_eks_cluster.dev-eks-cluster.name
+  addon_name   = "vpc-cni"
+}
+
+resource "aws_eks_addon" "addons" {
+  for_each = { for addon in var.addons : addon.name => addon }
+
+  cluster_name  = aws_eks_cluster.eks-cluster.id
+  addon_name    = each.value.name
+  addon_version = each.value.version
+}
