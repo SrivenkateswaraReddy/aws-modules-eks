@@ -4,14 +4,15 @@ eks_cluster_version = "1.32"
 
 addons = [
   { name = "vpc-cni", version = "v1.19.2-eksbuild.5" },
-  { name = "kube-proxy", version = "v1.30.0-eksbuild.1" },
+  { name = "kube-proxy", version = "v1.32.0-eksbuild.2" },
   { name = "coredns", version = "v1.11.1-eksbuild.2" },
-  { name = "aws-ebs-csi-driver", version = "v1.30.1-eksbuild.1" },
-  { name = "aws-efs-csi-driver", version = "v1.7.1-eksbuild.1" },
-  { name = "adot", version = "v1.0.0-eksbuild.1" },
-  { name = "aws-network-flow-monitoring-agent", version = "v1.2.0-eksbuild.1" },
-  { name = "eks-node-monitoring-agent", version = "v1.1.0-eksbuild.1" }
+  { name = "aws-ebs-csi-driver", version = "v1.29.1-eksbuild.1" }, # Replace with CLI output
+  { name = "aws-efs-csi-driver", version = "v1.7.1-eksbuild.1" }
+  # { name = "adot", version = "vX.Y.Z-eksbuild.N" }, # Not supported for 1.32 yet
+  # { name = "aws-network-flow-monitoring-agent", version = "..." }, # Check with CLI
+  # { name = "eks-node-monitoring-agent", version = "..." } # Check with CLI
 ]
+
 
 ssh_access_cidr   = ["0.0.0.0/0"]
 https_access_cidr = ["0.0.0.0/0"]
