@@ -1,51 +1,104 @@
-variable "tags" {
-  description = "A map of tags to assign to the resources"
+variable "environment" {
+  description = "Environment name for tagging"
+  type        = string
+  default     = "dev"
+}
+variable "addons" {
+  description = "List of EKS add-ons to install"
+  type = list(object({
+    name    = string
+    version = string
+  }))
+  default = [
+    { name = "vpc-cni", version = "v1.19.3-eksbuild.1" },
+    { name = "kube-proxy", version = "v1.29.0-eksbuild.1" },
+    { name = "coredns", version = "v1.11.1-eksbuild.1" },
+    { name = "aws-ebs-csi-driver", version = "v1.29.0-eksbuild.1" },
+    { name = "aws-efs-csi-driver", version = "v1.7.0-eksbuild.1" },
+    { name = "adot", version = "v0.90.0-eksbuild.1" },
+    { name = "aws-network-flow-monitoring-agent", version = "v1.0.0-eksbuild.1" },
+    { name = "eks-node-monitoring-agent", version = "v1.0.0-eksbuild.1" }
+  ]
+}
+
+variable "eks_cluster_name" {
+  description = "Name of the eks cluster"
+  type        = string
+}
+
+variable "eks_cluster_version" {
+  description = "Kubernetes version for EKS cluster"
+  type        = string
+  default     = "1.32"
+}
+
+variable "ssh_access_cidr" {
+  description = "CIDR blocks allowed for SSH access"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "https_access_cidr" {
+  description = "CIDR blocks allowed for HTTPS access"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "graviton_instance_type" {
+  description = "Instance type for Graviton node group"
+  type        = string
+  default     = "t4g.medium"
+}
+
+
+variable "graviton_node_scaling" {
+  description = "Scaling configuration for Graviton node group"
+  type = object({
+    desired_size = number
+    max_size     = number
+    min_size     = number
+  })
+  default = {
+    desired_size = 1
+    max_size     = 2
+    min_size     = 1
+  }
+}
+
+variable "node_disk_size" {
+  description = "Disk size for worker nodes in GB"
+  type        = number
+  default     = 20
+}
+
+variable "ami_type_graviton" {
+  description = "AMI type for Graviton nodes"
+  type        = string
+  default     = "AL2_ARM_64"
+}
+
+variable "project_name" {
+  description = "Project name for tagging"
+  type        = string
+  default     = "open-tofu-iac"
+}
+
+
+
+variable "additional_tags" {
+  description = "Additional tags to apply to resources"
   type        = map(string)
   default     = {}
 }
 
-# variable "s3_bucket_details" {}
-
-variable "cluster_name" {
-  type = string
+variable "tags" {
+  description = "A map of tags to assign to resources"
+  type        = map(string)
+  default     = {}
 }
 
-variable "cluster_version" {
-  type = string
-}
-
-# variable "vpc_id" {
-#   type = string
-# }
-
-# variable "subnet_ids" {
-#   type = list(string)
-# }
-
-# variable "eks_cluster_role_arn" {
-#   type = string
-# }
-
-# variable "eks_node_role_arn" {
-#   type = string
-# }
-
-variable "node_group_name" {
-  type = string
-}
-
-variable "node_instance_type" {
-  type = string
-}
-
-variable "node_min_size" {
-  type = number
-}
-
-variable "node_max_size" {
-  type = number
-}
-
-variable "node_desired_size" {
-  type = number
+variable "tags_all" {
+  description = "A map of all tags to assign to resources"
+  type        = map(string)
+  default     = {}
 }
