@@ -114,9 +114,8 @@ resource "aws_security_group_rule" "eks_node_egress_all" {
 }
 
 resource "aws_eks_addon" "addons" {
-  for_each = { for addon in var.addons : addon.name => addon }
-
-  cluster_name  = aws_eks_cluster.eks-cluster.id
+  for_each      = { for addon in var.addons : addon.name => addon }
+  cluster_name  = aws_eks_cluster.dev-eks-cluster.id
   addon_name    = each.value.name
   addon_version = each.value.version
 }
