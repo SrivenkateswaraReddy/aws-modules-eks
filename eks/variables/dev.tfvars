@@ -5,7 +5,7 @@ eks_cluster_version = "1.32"
 addons = [
   { name = "vpc-cni", version = "v1.19.2-eksbuild.5" },
   { name = "kube-proxy", version = "v1.32.0-eksbuild.2" },
-  { name = "coredns", version = "v1.11.1-eksbuild.2" },
+  # { name = "coredns", version = "v1.11.1-eksbuild.2" },
   { name = "aws-ebs-csi-driver", version = "v1.29.1-eksbuild.1" }, # Replace with CLI output
   # { name = "adot", version = "vX.Y.Z-eksbuild.N" }, # Not supported for 1.32 yet
   # { name = "aws-network-flow-monitoring-agent", version = "..." }, # Check with CLI
