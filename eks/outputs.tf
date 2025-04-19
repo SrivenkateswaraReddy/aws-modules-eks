@@ -23,11 +23,6 @@ output "eks_security_group_id" {
   description = "Security group ID for EKS nodes"
 }
 
-output "eks_addon_vpc_cni" {
-  value       = aws_eks_addon.example.addon_name
-  description = "Addon name for VPC CNI"
-}
-
 output "eks_node_sg_name" {
   value       = aws_security_group.eks_node_sg.name
   description = "Name of the security group for EKS nodes"
