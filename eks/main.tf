@@ -36,17 +36,8 @@ resource "aws_eks_cluster" "dev-eks-cluster" {
   }
   bootstrap_self_managed_addons = true
 
-  tags = {
-    Project     = "open-tofu-iac"
-    Environment = "dev"
-    Name        = "tfe_vpc"
-  }
-  tags_all = {
-    "Environment"                           = "dev"
-    "Name"                                  = "tfe_vpc"
-    "Project"                               = "open-tofu-iac"
-    "kubernetes.io/cluster/dev-eks-cluster" = "owned"
-  }
+  tags     = var.tags
+  tags_all = var.tags_all
   # Ensure that IAM Role permissions are created before and deleted
   # after EKS Cluster handling. Otherwise, EKS will not be able to
   # properly delete EKS managed EC2 infrastructure such as Security Groups.
@@ -81,14 +72,9 @@ resource "aws_eks_node_group" "system" {
 
   instance_types = [var.graviton_instance_type]
   ami_type       = var.ami_type_graviton
-  disk_size      = var.node_disk_size 
+  disk_size      = var.node_disk_size
 
-  tags = {
-    Environment                             = "dev"
-    Project                                 = "open-tofu-iac"
-    Name                                    = "system"
-    "kubernetes.io/cluster/dev-eks-cluster" = "owned"
-  }
+  tags = var.tags_all
 }
 
 resource "aws_security_group" "eks_node_sg" {
@@ -96,11 +82,7 @@ resource "aws_security_group" "eks_node_sg" {
   description = "Security group for EKS nodes"
   vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
 
-  tags = {
-    Name        = "eks-node-sg"
-    Environment = "dev"
-    Project     = "open-tofu-iac"
-  }
+  tags = var.tags
 }
 
 resource "aws_security_group_rule" "eks_node_ingress_ssh" {
@@ -129,11 +111,6 @@ resource "aws_security_group_rule" "eks_node_egress_all" {
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.eks_node_sg.id
-}
-
-resource "aws_eks_addon" "example" {
-  cluster_name = aws_eks_cluster.dev-eks-cluster.name
-  addon_name   = "vpc-cni"
 }
 
 resource "aws_eks_addon" "addons" {
