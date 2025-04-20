@@ -131,7 +131,7 @@ resource "helm_release" "kube_prometheus_stack" {
   create_namespace = true
 
   values = [
-    file("variables/values.yaml") // Customize your Helm values here
+    file("variables/prometheus-values.yaml") // Customize your Helm values here
   ]
 }
 
