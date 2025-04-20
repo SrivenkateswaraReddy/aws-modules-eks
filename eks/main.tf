@@ -119,3 +119,30 @@ resource "aws_eks_addon" "addons" {
   addon_name    = each.value.name
   addon_version = each.value.version
 }
+
+
+######## Helm Resources ##########
+
+resource "helm_release" "kube_prometheus_stack" {
+  name             = "kube-prometheus-stack"
+  repository       = "https://prometheus-community.github.io/helm-charts"
+  chart            = "kube-prometheus-stack"
+  namespace        = "prometheus"
+  create_namespace = true
+
+  values = [
+    file("variables/values.yaml") // Customize your Helm values here
+  ]
+}
+
+resource "helm_release" "otel_collector" {
+  name             = "otel-collector"
+  repository       = "https://open-telemetry.github.io/opentelemetry-helm-charts"
+  chart            = "opentelemetry-collector"
+  namespace        = "observability"
+  create_namespace = true
+
+  values = [
+    file("variables/otel-values.yaml") // Customize your Helm values here
+  ]
+}
