@@ -12,7 +12,6 @@ addons = [
   # { name = "eks-node-monitoring-agent", version = "..." } # Check with CLI
 ]
 
-
 ssh_access_cidr   = ["0.0.0.0/0"]
 https_access_cidr = ["0.0.0.0/0"]
 
