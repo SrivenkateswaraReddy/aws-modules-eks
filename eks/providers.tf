@@ -30,10 +30,6 @@ provider "kubernetes" {
     args        = ["eks", "get-token", "--cluster-name", aws_eks_cluster.dev-eks-cluster.name]
   }
 }
-
-
 provider "helm" {
-  kubernetes {
-    config_path = "~/.kube/config"
-  }
+  kubernetes_config_path = "~/.kube/config"
 }
