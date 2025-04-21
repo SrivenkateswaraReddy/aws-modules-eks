@@ -2,6 +2,15 @@ output "eks_cluster_name" {
   value       = aws_eks_cluster.dev-eks-cluster.name
   description = "Name of the EKS cluster"
 }
+output "eks_cluster_endpoint" {
+  description = "EKS cluster endpoint"
+  value       = aws_eks_cluster.dev-eks-cluster.endpoint
+}
+
+output "eks_cluster_ca_certificate" {
+  description = "EKS cluster CA certificate"
+  value       = aws_eks_cluster.dev-eks-cluster.certificate_authority[0].data
+}
 
 output "eks_cluster_role_arn" {
   value       = data.terraform_remote_state.iam.outputs.eks_cluster_role_arn
