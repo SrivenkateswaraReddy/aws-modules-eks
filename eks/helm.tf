@@ -1,6 +1,6 @@
 resource "helm_release" "kube_prometheus_stack" {
   name             = "kube-prometheus-stack"
-  namespace        = "monitoring"
+  namespace        = "prometheus"
   repository       = "https://prometheus-community.github.io/helm-charts"
   chart            = "kube-prometheus-stack"
   version          = "36.6.2" # Specify the desired chart version
