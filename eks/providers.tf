@@ -18,6 +18,7 @@ provider "aws" {
 
 provider "helm" {
   kubernetes = {
+    config_path            = "~/.kube/config" # <-- Add your kubeconfig path here
     host                   = aws_eks_cluster.dev-eks-cluster.endpoint
     cluster_ca_certificate = base64decode(aws_eks_cluster.dev-eks-cluster.certificate_authority[0].data)
     exec = {
@@ -27,3 +28,4 @@ provider "helm" {
     }
   }
 }
+
