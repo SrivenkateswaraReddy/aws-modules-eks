@@ -11,7 +11,7 @@ resource "helm_release" "grafana" {
   namespace  = kubernetes_namespace.grafana.metadata[0].name
   version    = "8.12.1" # Replace with the desired chart version
 
-  values = [file("${path.module}/grafana-values.yaml")]
+  values = [file("${path.module}/variables/grafana-values.yaml")]
 }
 
 resource "kubernetes_namespace" "prometheus" {
@@ -28,5 +28,5 @@ resource "helm_release" "prometheus" {
   version          = "27.11.0" # Replace with the desired chart version
   create_namespace = false
 
-  values = [file("${path.module}/prometheus-values.yaml")]
+  values = [file("${path.module}/variables/prometheus-values.yaml")]
 }
