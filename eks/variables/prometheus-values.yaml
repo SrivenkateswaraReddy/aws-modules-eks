@@ -2,13 +2,13 @@ alertmanager:
   enabled: true
   persistentVolume:
     enabled: true
-    storageClass: gp3
+    storageClass: gp2
     size: 2Gi
 
 server:
   persistentVolume:
     enabled: true
-    storageClass: gp3
+    storageClass: gp2
     size: 8Gi
 
   extraScrapeConfigs:
