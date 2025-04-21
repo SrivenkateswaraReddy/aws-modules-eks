@@ -1,5 +1,3 @@
-
-
 resource "helm_release" "grafana" {
   name             = "grafana"
   repository       = "https://grafana.github.io/helm-charts"
@@ -9,7 +7,6 @@ resource "helm_release" "grafana" {
   create_namespace = true
   values           = [file("${path.module}/variables/grafana-values.yaml")]
 }
-
 
 resource "helm_release" "prometheus" {
   name             = "prometheus"

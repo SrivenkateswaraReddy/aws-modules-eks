@@ -127,7 +127,14 @@ resource "aws_security_group_rule" "eks_node_ingress_ssh" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.eks_node_sg.id
 }
-
+resource "aws_security_group_rule" "eks_node_ingress_http" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.eks_node_sg.id
+}
 resource "aws_security_group_rule" "eks_node_ingress_https" {
   type              = "ingress"
   from_port         = 443
