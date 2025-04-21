@@ -20,15 +20,15 @@ resource "kubernetes_namespace" "otel_collector" {
   }
 }
 
-resource "helm_release" "otel_collector" {
-  name             = "otel-collector"
-  repository       = "https://open-telemetry.github.io/opentelemetry-helm-charts"
-  chart            = "opentelemetry-collector"
-  namespace        = kubernetes_namespace.otel_collector.metadata[0].name
-  create_namespace = false
-  version          = "0.41.0" # Specify the desired chart version
+# resource "helm_release" "otel_collector" {
+#   name             = "otel-collector"
+#   repository       = "https://open-telemetry.github.io/opentelemetry-helm-charts"
+#   chart            = "opentelemetry-collector"
+#   namespace        = kubernetes_namespace.otel_collector.metadata[0].name
+#   create_namespace = false
+#   version          = "0.41.0" # Specify the desired chart version
 
-  values = [
-    file("${path.module}/variables/otel-values.yaml")
-  ]
-}
+#   values = [
+#     file("${path.module}/variables/otel-values.yaml")
+#   ]
+# }
