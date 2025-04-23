@@ -22,7 +22,7 @@ jobs:
 
       - name: Update kubeconfig
         run: |
-          aws eks update-kubeconfig --region us-west-2 --name dev-eks-cluster  # Replace with your region and cluster name
+          aws eks update-kubeconfig --region us-east-1 --name dev-eks-cluster  # Replace with your region and cluster name
 
       - name: List all namespaces
         run: kubectl get namespaces
