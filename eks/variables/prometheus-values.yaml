@@ -1,0 +1,50 @@
+alertmanager:
+  enabled: true
+  persistentVolume:
+    enabled: true
+    storageClass: gp2
+    size: 2Gi
+
+server:
+  persistentVolume:
+    enabled: true
+    storageClass: gp2
+    size: 8Gi
+
+  extraScrapeConfigs:
+  - job_name: 'otel-collector'
+    scrape_interval: 10s
+    static_configs:
+    - targets: [ 'otel-collector.observability.svc.cluster.local:8888' ]
+
+  serverFiles:
+    prometheus.yml:
+      rule_files:
+      - /etc/prometheus/rules/*.yaml
+
+    alerting_rules.yml:
+      groups:
+      - name: example-alert
+        rules:
+        - alert: HighMemoryUsage
+          expr: node_memory_Active_bytes / node_memory_MemTotal_bytes > 0.9
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High memory usage detected on {{ $labels.instance }}"
+            description: "Memory usage is above 90% on {{ $labels.instance }}"
+
+  configMaps:
+    alerting_rules.yaml: |
+      groups:
+        - name: example-alert
+          rules:
+            - alert: HighMemoryUsage
+              expr: node_memory_Active_bytes / node_memory_MemTotal_bytes > 0.9
+              for: 5m
+              labels:
+                severity: warning
+              annotations:
+                summary: "High memory usage detected on {{ $labels.instance }}"
+                description: "Memory usage is above 90% on {{ $labels.instance }}"

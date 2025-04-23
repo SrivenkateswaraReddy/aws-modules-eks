@@ -9,16 +9,6 @@ variable "addons" {
     name    = string
     version = string
   }))
-  default = [
-    { name = "vpc-cni", version = "v1.19.3-eksbuild.1" },
-    { name = "kube-proxy", version = "v1.29.0-eksbuild.1" },
-    { name = "coredns", version = "v1.11.1-eksbuild.1" },
-    { name = "aws-ebs-csi-driver", version = "v1.29.0-eksbuild.1" },
-    { name = "aws-efs-csi-driver", version = "v1.7.0-eksbuild.1" },
-    { name = "adot", version = "v0.90.0-eksbuild.1" },
-    { name = "aws-network-flow-monitoring-agent", version = "v1.0.0-eksbuild.1" },
-    { name = "eks-node-monitoring-agent", version = "v1.0.0-eksbuild.1" }
-  ]
 }
 
 variable "eks_cluster_name" {
