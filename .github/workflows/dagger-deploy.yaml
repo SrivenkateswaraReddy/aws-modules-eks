@@ -49,4 +49,4 @@ jobs:
           ACTION: ${{ github.event.inputs.action }}
           ENVIRONMENT: ${{ github.event.inputs.environment }}
           MODULE: ${{ github.event.inputs.module }}
-        run: dagger run go run dagger/main.go
+        run: go run dagger/main.go
