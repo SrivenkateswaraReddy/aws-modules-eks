@@ -65,7 +65,7 @@ func main() {
 	tf := client.Container().
 		From("hashicorp/terraform:" + tfVersion).
 		WithMountedDirectory("/src", client.Host().Directory(".")).
-		WithWorkdir(fmt.Sprintf("/src/%s", module)).
+		WithWorkdir(fmt.Sprintf("/src/%s", module)). // or .WithWorkdir("/src/" + module)
 		WithEnvVariable("AWS_ACCESS_KEY_ID", awsAccessKey).
 		WithEnvVariable("AWS_SECRET_ACCESS_KEY", awsSecretKey).
 		WithEnvVariable("AWS_REGION", awsRegion)
@@ -109,4 +109,6 @@ func main() {
 	default:
 		log.Fatalf("Unsupported action: %s", action)
 	}
+
+	// tfDir is used above in WithWorkdir, so no unused variable error
 }
