@@ -39,7 +39,6 @@ jobs:
         run: |
           curl -L https://dl.dagger.io/dagger/install.sh | sh
           echo "$HOME/.dagger/bin" >> $GITHUB_PATH
-          echo 'export PATH="$HOME/.dagger/bin:$PATH"' >> "$GITHUB_ENV"
 
       - name: Run Terraform via Dagger
         env:
