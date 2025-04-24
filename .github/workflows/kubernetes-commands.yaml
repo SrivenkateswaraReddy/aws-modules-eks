@@ -1,4 +1,4 @@
-name: List EKS Namespaces and Install Argo CD
+name: Kubernetes-commands-eks
 
 on:
   workflow_dispatch:
