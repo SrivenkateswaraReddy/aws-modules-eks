@@ -160,3 +160,9 @@ resource "aws_eks_addon" "addons" {
   addon_name    = each.value.name
   addon_version = each.value.version
 }
+
+resource "aws_eks_addon" "addons" {
+  cluster_name  = aws_eks_cluster.dev-eks-cluster.name
+  addon_name    = "aws-ebs-csi-driver"
+  addon_version = "v1.41.0-eksbuild.1" # <- replace with a valid version
+}
