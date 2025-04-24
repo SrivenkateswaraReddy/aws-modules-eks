@@ -54,7 +54,7 @@ resource "aws_eks_node_group" "system" {
   scaling_config {
     desired_size = 0
     max_size     = 2
-    min_size     = 1
+    min_size     = 0
   }
 
   update_config {
@@ -87,7 +87,7 @@ resource "aws_eks_node_group" "general" {
   scaling_config {
     desired_size = 0
     max_size     = 2
-    min_size     = 1
+    min_size     = 0
   }
 
   update_config {
