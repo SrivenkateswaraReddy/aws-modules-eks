@@ -1,10 +1,10 @@
-name: List EKS Namespaces
+name: List EKS Namespaces and Install Argo CD
 
 on:
   workflow_dispatch:
 
 jobs:
-  list-namespaces:
+  setup-and-list-namespaces:
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials
@@ -23,6 +23,16 @@ jobs:
       - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig --region us-east-1 --name dev-eks-cluster  # Replace with your region and cluster name
+
+      - name: Create argocd namespace
+        run: kubectl create namespace argocd || echo "namespace already exists"
+
+      - name: Install Argo CD
+        run: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+      - name: Wait for Argo CD pods to be ready
+        run: |
+          kubectl wait --for=condition=Ready pods --all -n argocd --timeout=180s
 
       - name: List all namespaces
         run: kubectl get namespaces
