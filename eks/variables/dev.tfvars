@@ -5,7 +5,7 @@ eks_cluster_version = "1.32"
 addons = [
   { name = "vpc-cni", version = "v1.19.3-eksbuild.1" },
   { name = "kube-proxy", version = "v1.32.3-eksbuild.2" },
-  { name = "aws-ebs-csi-driver", version = "v1.26.0-eksbuild.1"}
+  { name = "aws-ebs-csi-driver", version = "v1.42.0-eksbuild.1"}
 ]
 
 ssh_access_cidr   = ["0.0.0.0/0"]
