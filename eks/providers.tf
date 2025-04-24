@@ -8,6 +8,10 @@ terraform {
       source  = "hashicorp/helm"
       version = "3.0.0-pre2"
     }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "2.36.0"
+    }
   }
   backend "s3" {}
 }
