@@ -52,7 +52,7 @@ resource "aws_eks_node_group" "system" {
   subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnet_ids
 
   scaling_config {
-    desired_size = 1
+    desired_size = 0
     max_size     = 2
     min_size     = 1
   }
@@ -87,7 +87,7 @@ resource "aws_eks_node_group" "general" {
   scaling_config {
     desired_size = 0
     max_size     = 2
-    min_size     = 0
+    min_size     = 1
   }
 
   update_config {
