@@ -14,9 +14,9 @@ https_access_cidr = ["0.0.0.0/0"]
 graviton_instance_type = "t4g.medium"
 
 graviton_node_scaling = {
-  desired_size = 1
+  desired_size = 0
   max_size     = 2
-  min_size     = 1
+  min_size     = 0
 }
 
 node_disk_size = 20
