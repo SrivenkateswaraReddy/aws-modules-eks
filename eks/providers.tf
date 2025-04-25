@@ -8,7 +8,7 @@ terraform {
       source  = "hashicorp/helm"
       version = "3.0.0-pre2"
     }
-    kubernetes = {
+    kubernetes = {https://github.com/SrivenkateswaraReddy/aws-modules-eks/actions/runs/14656511827
       source  = "hashicorp/kubernetes"
       version = "2.36.0"
     }

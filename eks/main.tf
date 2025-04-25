@@ -44,42 +44,9 @@ resource "aws_eks_cluster" "dev-eks-cluster" {
 }
 
 
-resource "aws_eks_node_group" "system" {
-  cluster_name    = aws_eks_cluster.dev-eks-cluster.name
-  node_group_name = "graviton"
-  node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
-
-  subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnet_ids
-
-  scaling_config {
-    desired_size = 0
-    max_size     = 2
-    min_size     = 0
-  }
-
-  update_config {
-    max_unavailable = 1
-  }
-
-  #   instance_types = ["t3.medium"]
-  #   ami_type       = "AL2_x86_64"
-  #   disk_size      = 20
-
-  #   instance_types = ["t3.small"]
-  #   ami_type       = "AL2_x86_64"
-  #   disk_size      = 20
-
-
-  instance_types = [var.graviton_instance_type]
-  ami_type       = var.ami_type_graviton
-  disk_size      = var.node_disk_size
-
-  tags = var.tags_all
-}
-
-# resource "aws_eks_node_group" "general" {
+# resource "aws_eks_node_group" "system" {
 #   cluster_name    = aws_eks_cluster.dev-eks-cluster.name
-#   node_group_name = "general"
+#   node_group_name = "graviton"
 #   node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
 
 #   subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnet_ids
@@ -94,21 +61,54 @@ resource "aws_eks_node_group" "system" {
 #     max_unavailable = 1
 #   }
 
-#   instance_types = ["t3.medium"]
-#   ami_type       = "AL2_x86_64"
-#   disk_size      = 20
+#   #   instance_types = ["t3.medium"]
+#   #   ami_type       = "AL2_x86_64"
+#   #   disk_size      = 20
 
 #   #   instance_types = ["t3.small"]
 #   #   ami_type       = "AL2_x86_64"
 #   #   disk_size      = 20
 
 
-#   # instance_types = [var.graviton_instance_type]
-#   # ami_type       = var.ami_type_graviton
-#   # disk_size      = var.node_disk_size
+#   instance_types = [var.graviton_instance_type]
+#   ami_type       = var.ami_type_graviton
+#   disk_size      = var.node_disk_size
 
 #   tags = var.tags_all
 # }
+
+resource "aws_eks_node_group" "general" {
+  cluster_name    = aws_eks_cluster.dev-eks-cluster.name
+  node_group_name = "general"
+  node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
+
+  subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+
+  scaling_config {
+    desired_size = 0
+    max_size     = 2
+    min_size     = 0
+  }
+
+  update_config {
+    max_unavailable = 1
+  }
+
+  instance_types = ["t3.medium"]
+  ami_type       = "AL2_x86_64"
+  disk_size      = 20
+
+  #   instance_types = ["t3.small"]
+  #   ami_type       = "AL2_x86_64"
+  #   disk_size      = 20
+
+
+  # instance_types = [var.graviton_instance_type]
+  # ami_type       = var.ami_type_graviton
+  # disk_size      = var.node_disk_size
+
+  tags = var.tags_all
+}
 
 
 resource "aws_security_group" "eks_node_sg" {
