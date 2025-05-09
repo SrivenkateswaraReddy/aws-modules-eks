@@ -103,10 +103,14 @@ resource "aws_eks_node_group" "general" {
   #   ami_type       = "AL2_x86_64"
   #   disk_size      = 20
 
-
   # instance_types = [var.graviton_instance_type]
   # ami_type       = var.ami_type_graviton
   # disk_size      = var.node_disk_size
+
+  launch_template {
+    id      = aws_launch_template.t3_medium_custom.id
+    version = "$Latest"
+  }
 
   tags = var.tags_all
 }
@@ -162,21 +166,19 @@ resource "aws_eks_addon" "addons" {
   addon_version = each.value.version
 }
 
+resource "aws_launch_template" "t3_medium_custom" {
+  name_prefix   = "eks-custom-t3medium-"
+  instance_type = "t3.medium"
 
-# # Max pod settings
-# resource "aws_launch_template" "t3_medium_custom" {
-#   name_prefix   = "eks-custom-t3medium-"
-#   instance_type = "t3.medium"
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    /etc/eks/bootstrap.sh ${aws_eks_cluster.dev-eks-cluster.name} \
+      --kubelet-extra-args '--max-pods=110'
+  EOF
+  )
 
-#   user_data = base64encode(<<-EOF
-#     #!/bin/bash
-#     /etc/eks/bootstrap.sh ${aws_eks_cluster.dev-eks-cluster.name} \
-#       --kubelet-extra-args '--max-pods=110'
-#   EOF
-#   )
-
-#   tag_specifications {
-#     resource_type = "instance"
-#     tags          = var.tags_all
-#   }
-# }
+  tag_specifications {
+    resource_type = "instance"
+    tags          = var.tags_all
+  }
+}
