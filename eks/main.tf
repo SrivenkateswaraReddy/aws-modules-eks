@@ -95,7 +95,7 @@ resource "aws_eks_node_group" "general" {
   }
 
   instance_types = ["t3.medium"]
-  ami_type       = "AL2_x86_64"
+  ami_type       = "AL2023_x86_64"
   disk_size      = 20
 
   capacity_type = "SPOT"
