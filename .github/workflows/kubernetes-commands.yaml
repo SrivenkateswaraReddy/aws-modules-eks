@@ -33,27 +33,5 @@ jobs:
       - name: Wait for Argo CD pods to be ready
         run: |
           kubectl wait --for=condition=Ready pods --all -n argocd --timeout=180s
-
       - name: List all namespaces
         run: kubectl get namespaces
-
-      - name: Enable Prefix Delegation for VPC CNI
-        run: |
-          kubectl set env daemonset aws-node -n kube-system ENABLE_PREFIX_DELEGATION=true
-          kubectl set env daemonset aws-node -n kube-system WARM_PREFIX_TARGET=1
-        continue-on-error: true  # Allows the workflow to continue if the DaemonSet is not immediately available or already configured
-
-      - name: Verify VPC CNI Configuration
-        run: |
-          kubectl describe daemonset aws-node -n kube-system | grep -A 3 ENABLE_PREFIX_DELEGATION || echo "Could not retrieve VPC CNI configuration details"
-        continue-on-error: true  # Non-critical step for verification purposes
-
-      - name: Check Pod Capacity on Nodes
-        run: |
-          NODE_NAME=$(kubectl get nodes -o jsonpath='{.items[0].metadata.name}')
-          if [ -n "$NODE_NAME" ]; then
-            kubectl get node "$NODE_NAME" -o jsonpath='{.status.capacity.pods}' | xargs echo "Max pods capacity on node $NODE_NAME:"
-          else
-            echo "No nodes found to check pod capacity."
-          fi
-        continue-on-error: true  # Allows workflow to proceed if no nodes are immediately available
