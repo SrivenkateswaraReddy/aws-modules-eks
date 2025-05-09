@@ -110,7 +110,7 @@ resource "aws_eks_node_group" "general" {
   # disk_size      = var.node_disk_size
 
   launch_template {
-    id      = aws_launch_template.t3_medium_custom.id
+    id      = aws_launch_template.al2023_custom.id
     version = "$Latest"
   }
 
@@ -168,8 +168,8 @@ resource "aws_eks_addon" "addons" {
   addon_version = each.value.version
 }
 
-resource "aws_launch_template" "t3_medium_custom" {
-  name_prefix   = "eks-custom-t3medium-"
+resource "aws_launch_template" "al2023_custom" {
+  name_prefix   = "eks-custom-al2023-"
   instance_type = "t3.medium"
 
   block_device_mappings {
@@ -184,7 +184,7 @@ resource "aws_launch_template" "t3_medium_custom" {
   user_data = base64encode(<<-EOF
     #!/bin/bash
     /etc/eks/bootstrap.sh ${aws_eks_cluster.dev-eks-cluster.name} \
-      --kubelet-extra-args '--max-pods=110'
+      --set-kubelet-configuration='{"maxPods": 110}'
   EOF
   )
 
