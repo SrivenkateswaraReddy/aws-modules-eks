@@ -98,7 +98,7 @@ resource "aws_eks_node_group" "general" {
   ami_type       = "AL2_x86_64"
   # ami_type = "AL2023_x86_64"
 
-  disk_size = 20
+  # disk_size = 20
 
   capacity_type = "SPOT"
   #   instance_types = ["t3.small"]
@@ -171,6 +171,15 @@ resource "aws_eks_addon" "addons" {
 resource "aws_launch_template" "t3_medium_custom" {
   name_prefix   = "eks-custom-t3medium-"
   instance_type = "t3.medium"
+
+  block_device_mappings {
+    device_name = "/dev/xvda"
+
+    ebs {
+      volume_size = 20
+      volume_type = "gp3"
+    }
+  }
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
