@@ -64,7 +64,7 @@ resource "aws_security_group" "nat_sg" {
   })
 }
 
-# NAT Elastic IP (updated deprecated argument)
+# NAT Elastic IP
 resource "aws_eip" "nat_instance_eip" {
   domain = "vpc"
 
@@ -73,15 +73,15 @@ resource "aws_eip" "nat_instance_eip" {
   })
 }
 
-# NAT Instance (remove key_name if you don't use SSH)
+# NAT Instance
 resource "aws_instance" "nat_instance" {
-  ami                         = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 NAT AMI in us-east-1
+  ami                         = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 NAT AMI for us-east-1
   instance_type               = "t3.micro"
   subnet_id                   = aws_subnet.public[0].id
   associate_public_ip_address = true
   source_dest_check           = false
-  # key_name                    = var.key_name  # Uncomment if you declare key_name variable and want SSH access
-  security_groups = [aws_security_group.nat_sg.id]
+  key_name                    = var.key_name # make sure you declare this variable
+  security_groups             = [aws_security_group.nat_sg.id]
 
   tags = merge(var.tags, {
     Name = "nat-instance"
@@ -107,7 +107,7 @@ resource "aws_route_table" "public" {
   })
 }
 
-# Private route table (no route for NAT here)
+# Private route table
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.terraform-vpc.id
 
@@ -116,14 +116,13 @@ resource "aws_route_table" "private" {
   })
 }
 
-# Route for private subnets to use NAT instance for outbound traffic
+# Private route using NAT instance's network interface ID
 resource "aws_route" "private_nat_route" {
   route_table_id         = aws_route_table.private.id
   destination_cidr_block = "0.0.0.0/0"
-  instance_id            = aws_instance.nat_instance.id
+  network_interface_id   = aws_instance.nat_instance.primary_network_interface_id
 }
 
-# Route table associations
 resource "aws_route_table_association" "public" {
   count          = 2
   subnet_id      = aws_subnet.public[count.index].id
@@ -148,4 +147,11 @@ resource "aws_vpn_gateway" "vpn_gw" {
 resource "aws_vpn_gateway_attachment" "vpn_attachment" {
   vpc_id         = aws_vpc.terraform-vpc.id
   vpn_gateway_id = aws_vpn_gateway.vpn_gw.id
+}
+
+
+variable "key_name" {
+  description = "Name of the SSH key pair"
+  type        = string
+  default     = "your-key-name"
 }
