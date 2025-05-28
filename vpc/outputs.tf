@@ -18,10 +18,10 @@ output "internet_gateway_id" {
   value       = aws_internet_gateway.igw.id
 }
 
-output "nat_gateway_id" {
-  description = "ID of the NAT Gateway"
-  value       = aws_nat_gateway.nat.id
-}
+# output "nat_gateway_id" {
+#   description = "ID of the NAT Gateway"
+#   value       = aws_nat_gateway.nat.id
+# }
 
 output "public_route_table_id" {
   description = "ID of the public route table"
