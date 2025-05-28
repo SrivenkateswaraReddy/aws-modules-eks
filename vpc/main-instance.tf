@@ -75,13 +75,13 @@ resource "aws_eip" "nat_instance_eip" {
 
 # NAT Instance
 resource "aws_instance" "nat_instance" {
-  ami                    = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 NAT AMI in us-east-1
-  instance_type          = "t3.micro"
-  subnet_id              = aws_subnet.public[0].id
+  ami                         = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 NAT AMI in us-east-1
+  instance_type               = "t3.micro"
+  subnet_id                   = aws_subnet.public[0].id
   associate_public_ip_address = true
-  source_dest_check      = false
-  key_name               = var.key_name # Optional: Add your SSH key if needed
-  security_groups        = [aws_security_group.nat_sg.id]
+  source_dest_check           = false
+  key_name                    = var.key_name # Optional: Add your SSH key if needed
+  security_groups             = [aws_security_group.nat_sg.id]
 
   tags = merge(var.tags, {
     Name = "nat-instance"
@@ -112,8 +112,8 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.terraform-vpc.id
 
   route {
-    cidr_block     = "0.0.0.0/0"
-    instance_id    = aws_instance.nat_instance.id
+    cidr_block  = "0.0.0.0/0"
+    instance_id = aws_instance.nat_instance.id
   }
 
   tags = merge(var.tags, {
