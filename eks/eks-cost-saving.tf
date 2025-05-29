@@ -31,46 +31,18 @@ resource "aws_eks_cluster" "dev-eks-cluster" {
       enabled = false
     }
   }
+
   bootstrap_self_managed_addons = true
 
   tags     = var.tags
   tags_all = var.tags_all
 }
 
-# Optimized Node Group with smaller instances
-resource "aws_eks_node_group" "general" {
-  cluster_name    = aws_eks_cluster.dev-eks-cluster.name
-  node_group_name = "general"
-  node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
-
-  subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnet_ids
-
-  scaling_config {
-    desired_size = 0 # Start with 0 nodes to save costs
-    max_size     = 2 # Reduced from 3
-    min_size     = 0
-  }
-
-  update_config {
-    max_unavailable = 1
-  }
-
-  launch_template {
-    id      = aws_launch_template.t3_small_custom.id
-    version = "$Latest"
-  }
-
-  capacity_type = "SPOT"
-
-  tags = var.tags_all
-}
-
 resource "aws_security_group" "eks_node_sg" {
   name        = "eks-node-sg"
   description = "Security group for EKS nodes"
   vpc_id      = data.terraform_remote_state.vpc.outputs.vpc_id
-
-  tags = var.tags
+  tags        = var.tags
 }
 
 resource "aws_security_group_rule" "eks_node_ingress_ssh" {
@@ -78,7 +50,7 @@ resource "aws_security_group_rule" "eks_node_ingress_ssh" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = ["10.0.0.0/16"] # Restricted to VPC only
+  cidr_blocks       = ["10.0.0.0/16"]
   security_group_id = aws_security_group.eks_node_sg.id
 }
 
@@ -109,40 +81,29 @@ resource "aws_security_group_rule" "eks_node_egress_all" {
   security_group_id = aws_security_group.eks_node_sg.id
 }
 
-# Only essential addons to reduce costs
-resource "aws_eks_addon" "essential_addons" {
-  for_each = {
-    vpc-cni = {
-      name    = "vpc-cni"
-      version = "v1.18.1-eksbuild.1"
-    }
-    kube-proxy = {
-      name    = "kube-proxy"
-      version = "v1.29.3-eksbuild.2"
-    }
-  }
-  cluster_name  = aws_eks_cluster.dev-eks-cluster.id
-  addon_name    = each.value.name
-  addon_version = each.value.version
-}
-
-# Optimized launch template with smaller instance and storage
 resource "aws_launch_template" "t3_small_custom" {
   name_prefix   = "eks-custom-t3small-"
-  instance_type = "t3.small" # Downgraded from t3.medium
+  instance_type = "t3.small"
 
   user_data = base64encode(<<-EOF
+    MIME-Version: 1.0
+    Content-Type: multipart/mixed; boundary="==BOUNDARY=="
+
+    --==BOUNDARY==
+    Content-Type: text/x-shellscript; charset="us-ascii"
+
     #!/bin/bash
     /etc/eks/bootstrap.sh ${aws_eks_cluster.dev-eks-cluster.name} \
-      --kubelet-extra-args '--max-pods=80'  # Appropriate for t3.small
+      --kubelet-extra-args '--max-pods=80'
+
+    --==BOUNDARY==--
   EOF
   )
 
   block_device_mappings {
     device_name = "/dev/xvda"
-
     ebs {
-      volume_size           = 20 # Reduced from 50GB
+      volume_size           = 20
       volume_type           = "gp3"
       delete_on_termination = true
     }
@@ -158,7 +119,42 @@ resource "aws_launch_template" "t3_small_custom" {
   }
 }
 
-# Auto-shutdown script for development (optional)
+resource "aws_eks_node_group" "general" {
+  cluster_name    = aws_eks_cluster.dev-eks-cluster.name
+  node_group_name = "general"
+  node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
+  subnet_ids      = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+
+  scaling_config {
+    desired_size = 0
+    max_size     = 2
+    min_size     = 0
+  }
+
+  update_config {
+    max_unavailable = 1
+  }
+
+  launch_template {
+    id      = aws_launch_template.t3_small_custom.id
+    version = "$Latest"
+  }
+
+  capacity_type = "SPOT"
+  tags          = var.tags_all
+}
+
+resource "aws_eks_addon" "essential_addons" {
+  for_each = toset(["vpc-cni", "kube-proxy"])
+
+  cluster_name = aws_eks_cluster.dev-eks-cluster.name
+  addon_name   = each.key
+
+  # Let AWS pick the latest compatible version
+  resolve_conflicts = "OVERWRITE"
+}
+
+# Optional: Auto shutdown Lambda
 resource "aws_lambda_function" "eks_auto_shutdown" {
   count         = var.enable_auto_shutdown ? 1 : 0
   filename      = "eks_shutdown.zip"
@@ -168,8 +164,7 @@ resource "aws_lambda_function" "eks_auto_shutdown" {
   runtime       = "python3.9"
 
   source_code_hash = data.archive_file.lambda_zip[0].output_base64sha256
-
-  tags = var.tags
+  tags             = var.tags
 }
 
 data "archive_file" "lambda_zip" {
@@ -183,8 +178,6 @@ import json
 
 def handler(event, context):
     eks = boto3.client('eks')
-    
-    # Scale down node group to 0
     eks.update_nodegroup_config(
         clusterName='${var.eks_cluster_name}',
         nodegroupName='general',
@@ -194,7 +187,6 @@ def handler(event, context):
             'desiredSize': 0
         }
     )
-    
     return {
         'statusCode': 200,
         'body': json.dumps('EKS nodes scaled down')
@@ -222,12 +214,11 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
-# CloudWatch Event to trigger shutdown at night
 resource "aws_cloudwatch_event_rule" "eks_shutdown_schedule" {
   count               = var.enable_auto_shutdown ? 1 : 0
   name                = "eks-shutdown-schedule"
   description         = "Trigger EKS shutdown at 10 PM"
-  schedule_expression = "cron(0 22 * * ? *)" # 10 PM daily
+  schedule_expression = "cron(0 22 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_target" {
