@@ -18,25 +18,29 @@ resource "aws_internet_gateway" "igw" {
   )
 }
 
+# Two public subnets in different AZs
 resource "aws_subnet" "public" {
+  count                   = 2
   vpc_id                  = aws_vpc.terraform-vpc.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-east-1a"
+  cidr_block              = "10.0.${count.index + 1}.0/24"
+  availability_zone       = element(["us-east-1a", "us-east-1b"], count.index)
   map_public_ip_on_launch = true
   tags = merge(var.tags,
     {
-      Name = "public-subnet"
+      Name = "public-subnet-${count.index + 1}"
     }
   )
 }
 
+# Two private subnets in different AZs
 resource "aws_subnet" "private" {
+  count             = 2
   vpc_id            = aws_vpc.terraform-vpc.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "us-east-1a"
+  cidr_block        = "10.0.${count.index + 3}.0/24"
+  availability_zone = element(["us-east-1a", "us-east-1b"], count.index)
   tags = merge(var.tags,
     {
-      Name = "private-subnet"
+      Name = "private-subnet-${count.index + 1}"
     }
   )
 }
@@ -80,7 +84,7 @@ resource "aws_eip" "nat" {
 resource "aws_instance" "nat_instance" {
   ami                    = "ami-00a9d4a05375b2763"
   instance_type          = "t3.nano"
-  subnet_id              = aws_subnet.public.id
+  subnet_id              = aws_subnet.public[0].id
   source_dest_check      = false
   vpc_security_group_ids = [aws_security_group.nat_sg.id]
   tags = merge(var.tags,
@@ -125,11 +129,13 @@ resource "aws_route" "private_nat_route" {
 }
 
 resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.public.id
+  count          = 2
+  subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
 }
 
 resource "aws_route_table_association" "private" {
-  subnet_id      = aws_subnet.private.id
+  count          = 2
+  subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
 }
