@@ -75,7 +75,7 @@ resource "aws_eip" "nat_instance_eip" {
 
 # NAT Instance
 resource "aws_instance" "nat_instance" {
-  ami                         = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 NAT AMI for us-east-1
+  ami                         = "ami-0953476d60561c955" # Amazon Linux 2 NAT AMI for us-east-1
   instance_type               = "t3.micro"
   subnet_id                   = aws_subnet.public[0].id
   associate_public_ip_address = true
