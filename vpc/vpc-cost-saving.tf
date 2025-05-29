@@ -1,0 +1,135 @@
+resource "aws_vpc" "terraform-vpc" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+  tags = merge(var.tags,
+    {
+      Name = "tfe_vpc"
+    }
+  )
+}
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.terraform-vpc.id
+  tags = merge(var.tags,
+    {
+      Name = "main-igw"
+    }
+  )
+}
+
+resource "aws_subnet" "public" {
+  vpc_id                  = aws_vpc.terraform-vpc.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "us-east-1a"
+  map_public_ip_on_launch = true
+  tags = merge(var.tags,
+    {
+      Name = "public-subnet"
+    }
+  )
+}
+
+resource "aws_subnet" "private" {
+  vpc_id            = aws_vpc.terraform-vpc.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "us-east-1a"
+  tags = merge(var.tags,
+    {
+      Name = "private-subnet"
+    }
+  )
+}
+
+resource "aws_security_group" "nat_sg" {
+  name        = "nat-instance-sg"
+  description = "Allow NAT instance traffic"
+  vpc_id      = aws_vpc.terraform-vpc.id
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(var.tags,
+    {
+      Name = "nat-instance-sg"
+    }
+  )
+}
+
+resource "aws_eip" "nat" {
+  domain     = "vpc"
+  depends_on = [aws_internet_gateway.igw]
+  tags = merge(var.tags,
+    {
+      Name = "tfe-epi-nat"
+    }
+  )
+}
+
+resource "aws_instance" "nat_instance" {
+  ami                    = "ami-00a9d4a05375b2763"
+  instance_type          = "t3.nano"
+  subnet_id              = aws_subnet.public.id
+  source_dest_check      = false
+  vpc_security_group_ids = [aws_security_group.nat_sg.id]
+  tags = merge(var.tags,
+    {
+      Name = "nat-instance"
+    }
+  )
+}
+
+resource "aws_eip_association" "nat_eip_assoc" {
+  instance_id   = aws_instance.nat_instance.id
+  allocation_id = aws_eip.nat.id
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.terraform-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+  tags = merge(var.tags,
+    {
+      Name = "public-rt"
+    }
+  )
+}
+
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.terraform-vpc.id
+  tags = merge(var.tags,
+    {
+      Name = "private-rt"
+    }
+  )
+}
+
+resource "aws_route" "private_nat_route" {
+  route_table_id         = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"
+  network_interface_id   = aws_instance.nat_instance.primary_network_interface_id
+}
+
+resource "aws_route_table_association" "public" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "private" {
+  subnet_id      = aws_subnet.private.id
+  route_table_id = aws_route_table.private.id
+}
