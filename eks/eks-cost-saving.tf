@@ -46,8 +46,8 @@ resource "aws_eks_node_group" "general" {
   subnet_ids = data.terraform_remote_state.vpc.outputs.private_subnet_ids
 
   scaling_config {
-    desired_size = 0  # Start with 0 nodes to save costs
-    max_size     = 2  # Reduced from 3
+    desired_size = 0 # Start with 0 nodes to save costs
+    max_size     = 2 # Reduced from 3
     min_size     = 0
   }
 
@@ -78,7 +78,7 @@ resource "aws_security_group_rule" "eks_node_ingress_ssh" {
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = ["10.0.0.0/16"]  # Restricted to VPC only
+  cidr_blocks       = ["10.0.0.0/16"] # Restricted to VPC only
   security_group_id = aws_security_group.eks_node_sg.id
 }
 
@@ -117,7 +117,7 @@ resource "aws_eks_addon" "essential_addons" {
       version = "v1.18.1-eksbuild.1"
     }
     kube-proxy = {
-      name    = "kube-proxy" 
+      name    = "kube-proxy"
       version = "v1.29.3-eksbuild.2"
     }
   }
@@ -129,7 +129,7 @@ resource "aws_eks_addon" "essential_addons" {
 # Optimized launch template with smaller instance and storage
 resource "aws_launch_template" "t3_small_custom" {
   name_prefix   = "eks-custom-t3small-"
-  instance_type = "t3.small"  # Downgraded from t3.medium
+  instance_type = "t3.small" # Downgraded from t3.medium
 
   user_data = base64encode(<<-EOF
     #!/bin/bash
@@ -142,7 +142,7 @@ resource "aws_launch_template" "t3_small_custom" {
     device_name = "/dev/xvda"
 
     ebs {
-      volume_size           = 20  # Reduced from 50GB
+      volume_size           = 20 # Reduced from 50GB
       volume_type           = "gp3"
       delete_on_termination = true
     }
@@ -177,7 +177,7 @@ data "archive_file" "lambda_zip" {
   type        = "zip"
   output_path = "eks_shutdown.zip"
   source {
-    content = <<EOF
+    content  = <<EOF
 import boto3
 import json
 
@@ -227,7 +227,7 @@ resource "aws_cloudwatch_event_rule" "eks_shutdown_schedule" {
   count               = var.enable_auto_shutdown ? 1 : 0
   name                = "eks-shutdown-schedule"
   description         = "Trigger EKS shutdown at 10 PM"
-  schedule_expression = "cron(0 22 * * ? *)"  # 10 PM daily
+  schedule_expression = "cron(0 22 * * ? *)" # 10 PM daily
 }
 
 resource "aws_cloudwatch_event_target" "lambda_target" {
