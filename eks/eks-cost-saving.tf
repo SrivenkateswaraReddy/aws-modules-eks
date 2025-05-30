@@ -145,16 +145,30 @@ resource "aws_eks_node_group" "general" {
 }
 
 resource "aws_eks_addon" "essential_addons" {
-  for_each = toset(["vpc-cni", "kube-proxy"])
+  for_each = {
+    "vpc-cni" = {
+      configuration_values = jsonencode({
+        env = {
+          ENABLE_PREFIX_DELEGATION = "true"
+          WARM_PREFIX_TARGET       = "1"
+        }
+      })
+    }
+    "kube-proxy"         = {}
+    "aws-ebs-csi-driver" = {}
+  }
 
-  cluster_name = aws_eks_cluster.dev-eks-cluster.name
-  addon_name   = each.key
-
-  # Let AWS pick the latest compatible version
-  resolve_conflicts = "OVERWRITE"
+  cluster_name         = aws_eks_cluster.dev-eks-cluster.name
+  addon_name           = each.key
+  configuration_values = lookup(each.value, "configuration_values", null)
 }
 
-# Optional: Auto shutdown Lambda
+# Attach EBS CSI IAM policy to node role
+resource "aws_iam_role_policy_attachment" "ebs_csi_driver_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+  role       = data.terraform_remote_state.iam.outputs.eks_node_role_name
+}
+
 resource "aws_lambda_function" "eks_auto_shutdown" {
   count         = var.enable_auto_shutdown ? 1 : 0
   filename      = "eks_shutdown.zip"
