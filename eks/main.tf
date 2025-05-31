@@ -43,7 +43,7 @@ resource "aws_eks_cluster" "dev_eks_cluster" {
 resource "aws_cloudwatch_log_group" "eks_cluster_logs" {
   name              = "/aws/eks/${var.eks_cluster_name}/cluster"
   retention_in_days = var.log_retention_days
-  kms_key_id        = var.kms_key_arn
+  # kms_key_id        = var.kms_key_arn
 
   tags = var.tags
 }
