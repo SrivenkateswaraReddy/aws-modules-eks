@@ -129,7 +129,7 @@ resource "aws_launch_template" "eks_nodes" {
   name_prefix            = "${var.eks_cluster_name}-t3-medium-template"
   description            = "Launch template for EKS t3.medium worker nodes with high pod density"
   update_default_version = true
-  
+
   instance_type = "t3.medium"
 
   block_device_mappings {
@@ -148,12 +148,12 @@ resource "aws_launch_template" "eks_nodes" {
   vpc_security_group_ids = [aws_security_group.eks_node_sg.id]
 
   user_data = base64encode(templatefile("${path.module}/userdata.sh", {
-    cluster_name        = aws_eks_cluster.dev_eks_cluster.name
-    cluster_endpoint    = aws_eks_cluster.dev_eks_cluster.endpoint
-    cluster_ca          = aws_eks_cluster.dev_eks_cluster.certificate_authority[0].data
-    max_pods           = 110  # Maximum pods for t3.medium with prefix delegation
-    additional_args    = var.kubelet_extra_args
-    prefix_delegation  = var.enable_prefix_delegation
+    cluster_name      = aws_eks_cluster.dev_eks_cluster.name
+    cluster_endpoint  = aws_eks_cluster.dev_eks_cluster.endpoint
+    cluster_ca        = aws_eks_cluster.dev_eks_cluster.certificate_authority[0].data
+    max_pods          = 110 # Maximum pods for t3.medium with prefix delegation
+    additional_args   = var.kubelet_extra_args
+    prefix_delegation = var.enable_prefix_delegation
   }))
 
   tag_specifications {
@@ -185,7 +185,7 @@ resource "aws_eks_node_group" "general" {
   subnet_ids      = data.terraform_remote_state.vpc.outputs.private_subnet_ids
 
   capacity_type  = var.node_capacity_type
-  instance_types = ["t3.medium"]  # Fixed to t3.medium for consistent performance
+  instance_types = ["t3.medium"] # Fixed to t3.medium for consistent performance
 
   scaling_config {
     desired_size = var.node_desired_size
@@ -205,7 +205,7 @@ resource "aws_eks_node_group" "general" {
   # Ensure proper ordering of resource creation and destruction
   depends_on = [
     aws_eks_cluster.dev_eks_cluster,
-    aws_eks_addon.vpc_cni,  # Ensure VPC CNI is configured before nodes
+    aws_eks_addon.vpc_cni, # Ensure VPC CNI is configured before nodes
   ]
 
   lifecycle {
@@ -213,8 +213,8 @@ resource "aws_eks_node_group" "general" {
   }
 
   tags = merge(var.tags, {
-    Name = "${var.eks_cluster_name}-t3-medium-nodes"
-    "k8s.io/cluster-autoscaler/enabled" = "true"
+    Name                                                = "${var.eks_cluster_name}-t3-medium-nodes"
+    "k8s.io/cluster-autoscaler/enabled"                 = "true"
     "k8s.io/cluster-autoscaler/${var.eks_cluster_name}" = "owned"
   })
 }
@@ -229,7 +229,7 @@ resource "aws_eks_node_group" "spot" {
   subnet_ids      = data.terraform_remote_state.vpc.outputs.private_subnet_ids
 
   capacity_type  = "SPOT"
-  instance_types = ["t3.medium", "t3a.medium"]  # Similar performance instances
+  instance_types = ["t3.medium", "t3a.medium"] # Similar performance instances
 
   scaling_config {
     desired_size = var.spot_desired_size
@@ -263,27 +263,27 @@ resource "aws_eks_node_group" "spot" {
   }
 
   tags = merge(var.tags, {
-    Name = "${var.eks_cluster_name}-t3-medium-spot-nodes"
-    "k8s.io/cluster-autoscaler/enabled" = "true"
+    Name                                                = "${var.eks_cluster_name}-t3-medium-spot-nodes"
+    "k8s.io/cluster-autoscaler/enabled"                 = "true"
     "k8s.io/cluster-autoscaler/${var.eks_cluster_name}" = "owned"
   })
 }
 
 # EKS Add-ons with VPC CNI configured for prefix delegation
 resource "aws_eks_addon" "vpc_cni" {
-  cluster_name                    = aws_eks_cluster.dev_eks_cluster.id
-  addon_name                      = "vpc-cni"
-  addon_version                   = var.vpc_cni_version
-  resolve_conflicts_on_create     = "OVERWRITE"
-  resolve_conflicts_on_update     = "OVERWRITE"
-  service_account_role_arn        = var.vpc_cni_irsa_role_arn
+  cluster_name                = aws_eks_cluster.dev_eks_cluster.id
+  addon_name                  = "vpc-cni"
+  addon_version               = var.vpc_cni_version
+  resolve_conflicts_on_create = "OVERWRITE"
+  resolve_conflicts_on_update = "OVERWRITE"
+  service_account_role_arn    = var.vpc_cni_irsa_role_arn
 
   configuration_values = jsonencode({
     env = {
       ENABLE_PREFIX_DELEGATION = var.enable_prefix_delegation ? "true" : "false"
-      WARM_PREFIX_TARGET      = var.enable_prefix_delegation ? "1" : "0"
-      WARM_IP_TARGET          = var.enable_prefix_delegation ? "5" : "1"
-      MINIMUM_IP_TARGET       = var.enable_prefix_delegation ? "3" : "1"
+      WARM_PREFIX_TARGET       = var.enable_prefix_delegation ? "1" : "0"
+      WARM_IP_TARGET           = var.enable_prefix_delegation ? "5" : "1"
+      MINIMUM_IP_TARGET        = var.enable_prefix_delegation ? "3" : "1"
     }
   })
 
