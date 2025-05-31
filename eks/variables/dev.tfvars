@@ -6,7 +6,7 @@ eks_cluster_version = "1.33"
 
 # Enable high pod density with prefix delegation
 enable_prefix_delegation = true
-vpc_cni_version          = "v1.19.4-eksbuild.1"
+vpc_cni_version          = "v1.19.5-eksbuild.3"
 
 # Network Configuration
 enable_public_access = true
@@ -46,19 +46,19 @@ log_retention_days = 30
 additional_addons = [
   {
     name    = "coredns"
-    version = "v1.10.1-eksbuild.4"
+    version = "v1.12.1-eksbuild.2"
   },
   {
     name    = "kube-proxy"
-    version = "v1.32.2-eksbuild.7"
+    version = "v1.33.0-eksbuild.2"
   },
   {
     name    = "aws-ebs-csi-driver"
-    version = "v1.42.0-eksbuild.1"
+    version = "v1.44.0-eksbuild.1"
   },
   {
     name    = "aws-efs-csi-driver"
-    version = "v1.7.0-eksbuild.1"
+    version = "v2.1.8-eksbuild.1"
   }
 ]
 
