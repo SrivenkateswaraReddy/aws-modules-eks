@@ -1,67 +1,40 @@
-output "eks_cluster_name" {
-  value       = aws_eks_cluster.dev-eks-cluster.name
-  description = "Name of the EKS cluster"
+# Outputs
+output "cluster_id" {
+  description = "EKS cluster ID"
+  value       = aws_eks_cluster.dev_eks_cluster.id
 }
-output "eks_cluster_endpoint" {
+
+output "cluster_arn" {
+  description = "EKS cluster ARN"
+  value       = aws_eks_cluster.dev_eks_cluster.arn
+}
+
+output "cluster_endpoint" {
   description = "EKS cluster endpoint"
-  value       = aws_eks_cluster.dev-eks-cluster.endpoint
-}
-output "eks_cluster_ca_certificate" {
-  description = "EKS cluster CA certificate"
-  value       = aws_eks_cluster.dev-eks-cluster.certificate_authority[0].data
+  value       = aws_eks_cluster.dev_eks_cluster.endpoint
 }
 
-output "eks_cluster_role_arn" {
-  value       = data.terraform_remote_state.iam.outputs.eks_cluster_role_arn
-  description = "IAM role ARN for the EKS cluster"
+output "cluster_version" {
+  description = "EKS cluster Kubernetes version"
+  value       = aws_eks_cluster.dev_eks_cluster.version
 }
 
-output "eks_node_role_arn" {
-  value       = data.terraform_remote_state.iam.outputs.eks_node_role_arn
-  description = "IAM role ARN for the EKS nodes"
+output "cluster_security_group_id" {
+  description = "Security group ID attached to the EKS cluster"
+  value       = aws_security_group.eks_cluster_sg.id
 }
 
-output "eks_private_subnet_ids" {
-  value       = data.terraform_remote_state.vpc.outputs.private_subnet_ids
-  description = "Private subnet IDs for the EKS cluster"
-}
-
-output "eks_security_group_id" {
+output "node_security_group_id" {
+  description = "Security group ID attached to the EKS nodes"
   value       = aws_security_group.eks_node_sg.id
-  description = "Security group ID for EKS nodes"
 }
 
-output "eks_node_sg_name" {
-  value       = aws_security_group.eks_node_sg.name
-  description = "Name of the security group for EKS nodes"
+output "oidc_issuer_url" {
+  description = "The URL on the EKS cluster OIDC Issuer"
+  value       = aws_eks_cluster.dev_eks_cluster.identity[0].oidc[0].issuer
 }
 
-output "eks_node_sg_ingress_ssh" {
-  value = {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  description = "Ingress rule for SSH access to EKS nodes"
-}
-
-output "eks_node_sg_ingress_https" {
-  value = {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  description = "Ingress rule for HTTPS access to EKS nodes"
-}
-
-output "eks_node_sg_egress_all" {
-  value = {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  description = "Egress rule for all traffic from EKS nodes"
+output "oidc_provider_arn" {
+  description = "The ARN of the OIDC Provider for EKS"
+  value       = aws_iam_openid_connect_provider.eks_oidc.arn
 }

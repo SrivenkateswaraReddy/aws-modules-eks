@@ -2,9 +2,25 @@ name: max-pods-eks
 
 on:
   workflow_dispatch:
+    inputs:
+      cluster_name:
+        description: 'EKS Cluster Name'
+        required: true
+        default: 'dev-eks-cluster'
+        type: string
+      aws_region:
+        description: 'AWS Region'
+        required: true
+        default: 'us-east-1'
+        type: string
+      restart_nodes:
+        description: 'Restart existing nodes (recommended for new settings)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
-  enable-prefix-delegation:
+  eks-high-pod-density-setup:
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials
@@ -12,31 +28,116 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1  # Replace with your region
+          aws-region: ${{ inputs.aws_region }}
 
-      - name: Install kubectl
+      - name: Install required tools
         run: |
+          # Install kubectl
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
+          
+          # Install jq for JSON processing
+          sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Update kubeconfig for EKS
+      - name: Update kubeconfig and verify connectivity
         run: |
-          aws eks update-kubeconfig --region us-east-1 --name dev-eks-cluster  # Replace with your cluster name
+          echo "=== EKS High Pod Density Setup and Verification ==="
+          echo "Cluster: ${{ inputs.cluster_name }}"
+          echo "Region: ${{ inputs.aws_region }}"
+          echo "=================================================="
+          
+          echo "Updating kubeconfig..."
+          aws eks update-kubeconfig --region ${{ inputs.aws_region }} --name ${{ inputs.cluster_name }}
+          
+          echo "Verifying cluster connectivity..."
+          kubectl get nodes
 
-      - name: Enable prefix delegation
+      - name: Check current VPC CNI configuration
         run: |
+          echo "Checking current VPC CNI configuration..."
+          kubectl describe daemonset aws-node -n kube-system | grep -A 10 -B 5 "ENABLE_PREFIX_DELEGATION\|WARM_PREFIX_TARGET" || echo "No existing prefix delegation config found"
+          
+          echo "Current VPC CNI environment variables:"
+          kubectl get daemonset aws-node -n kube-system -o jsonpath='{.spec.template.spec.containers[0].env[*]}' | jq -r '.[] | select(.name | test("PREFIX|WARM|IP_TARGET")) | "\(.name)=\(.value)"' || echo "No relevant environment variables found"
+
+      - name: Enable prefix delegation and optimize settings
+        run: |
+          echo "Enabling prefix delegation and setting optimal values..."
+          
           echo "Setting ENABLE_PREFIX_DELEGATION to true..."
           kubectl set env daemonset aws-node -n kube-system ENABLE_PREFIX_DELEGATION=true
-
+          
           echo "Setting WARM_PREFIX_TARGET to 1..."
           kubectl set env daemonset aws-node -n kube-system WARM_PREFIX_TARGET=1
+          
+          echo "Setting WARM_IP_TARGET to 5..."
+          kubectl set env daemonset aws-node -n kube-system WARM_IP_TARGET=5
+          
+          echo "Setting MINIMUM_IP_TARGET to 3..."
+          kubectl set env daemonset aws-node -n kube-system MINIMUM_IP_TARGET=3
 
+      - name: Restart aws-node DaemonSet and wait for completion
+        run: |
           echo "Restarting aws-node DaemonSet..."
           kubectl rollout restart daemonset aws-node -n kube-system
+          
+          echo "Waiting for aws-node daemonset to restart..."
+          kubectl rollout status daemonset/aws-node -n kube-system --timeout=300s
 
-      - name: Confirm aws-node logs
+      - name: Verify configuration and pod status
         run: |
-          echo "Waiting for aws-node pods to restart..."
-          sleep 20
+          echo "Waiting for aws-node pods to be ready..."
+          sleep 30
+          
+          echo "Current aws-node pod status:"
           kubectl get pods -n kube-system -l k8s-app=aws-node
+          
+          echo "Verifying updated configuration:"
+          kubectl get daemonset aws-node -n kube-system -o jsonpath='{.spec.template.spec.containers[0].env[*]}' | jq -r '.[] | select(.name | test("PREFIX|WARM|IP_TARGET")) | "\(.name)=\(.value)"'
+
+      - name: Display node capacity information
+        run: |
+          echo "Current node capacity information:"
+          kubectl describe nodes | grep -E "Name:|Capacity:|Allocatable:" | grep -A 2 "Name:"
+          
+          echo "Pod allocation per node:"
+          kubectl get nodes -o custom-columns="NAME:.metadata.name,PODS:.status.capacity.pods,ALLOCATABLE-PODS:.status.allocatable.pods"
+
+      - name: Restart nodes (if requested)
+        if: ${{ inputs.restart_nodes }}
+        run: |
+          echo "Note: Restarting existing nodes to pick up new VPC CNI settings..."
+          echo "This will terminate and recreate nodes to ensure new settings are applied."
+          echo "WARNING: This action will cause temporary disruption to workloads."
+          
+          # Get node group names
+          NODE_GROUPS=$(aws eks list-nodegroups --cluster-name ${{ inputs.cluster_name }} --region ${{ inputs.aws_region }} --query 'nodegroups' --output text)
+          
+          for NODE_GROUP in $NODE_GROUPS; do
+            echo "Updating node group: $NODE_GROUP"
+            aws eks update-nodegroup-version \
+              --cluster-name ${{ inputs.cluster_name }} \
+              --nodegroup-name $NODE_GROUP \
+              --region ${{ inputs.aws_region }} \
+              --force || echo "Node group $NODE_GROUP update initiated or already in progress"
+          done
+          
+          echo "Node group updates initiated. Monitor progress in AWS Console."
+
+      - name: Final verification and recommendations
+        run: |
+          echo "=== Setup Complete ==="
+          echo "Prefix delegation has been enabled with the following settings:"
+          echo "- ENABLE_PREFIX_DELEGATION: true"
+          echo "- WARM_PREFIX_TARGET: 1" 
+          echo "- WARM_IP_TARGET: 5"
+          echo "- MINIMUM_IP_TARGET: 3"
+          echo ""
+          echo "Recommendations:"
+          echo "1. Monitor aws-node pod logs: kubectl logs -n kube-system -l k8s-app=aws-node"
+          echo "2. Check node IP allocation: kubectl describe node <node-name>"
+          echo "3. For existing nodes, consider restarting them to pick up new settings"
+          echo "4. Test pod density by deploying test workloads"
+          echo ""
+          echo "Maximum pods per node should now be significantly increased based on your instance type."
