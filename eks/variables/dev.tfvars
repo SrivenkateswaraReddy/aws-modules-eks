@@ -1,6 +1,6 @@
 # dev.tfvars
 eks_cluster_name    = "dev-eks-cluster"
-eks_cluster_version = "1.32"
+eks_cluster_version = "1.33"
 
 addons = [
   { name = "vpc-cni", version = "v1.19.4-eksbuild.1" },
