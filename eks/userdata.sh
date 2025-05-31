@@ -1,3 +1,11 @@
+Content-Type: multipart/mixed; boundary="MIMEBOUNDARY"
+MIME-Version: 1.0
+
+--MIMEBOUNDARY
+Content-Type: text/x-shellscript; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+${base64encode(<<-EOT
 #!/bin/bash
 # userdata.sh - EKS Node Bootstrap with High Pod Density Support
 
@@ -82,3 +90,6 @@ echo "Instance Type: t3.medium"
 echo "Max Pods: ${max_pods}"
 echo "Prefix Delegation: ${prefix_delegation}"
 echo "================================="
+EOT
+)}
+--MIMEBOUNDARY--
