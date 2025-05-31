@@ -10,7 +10,7 @@ vpc_cni_version          = "v1.15.4-eksbuild.1"
 
 # Network Configuration
 enable_public_access = true
-public_access_cidrs  = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"] # Restrict to private networks
+public_access_cidrs  = ["0.0.0.0/0"] # Allows all public IPs # Restrict to private networks
 
 # Security Configuration
 enable_ssh_access = false # Disable SSH for security
