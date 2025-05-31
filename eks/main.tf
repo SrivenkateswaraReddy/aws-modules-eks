@@ -135,11 +135,11 @@ resource "aws_launch_template" "eks_nodes" {
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
-      volume_size           = var.node_disk_size
-      volume_type           = var.node_volume_type
-      iops                  = var.node_volume_type == "gp3" ? var.node_volume_iops : null
-      throughput            = var.node_volume_type == "gp3" ? var.node_volume_throughput : null
-      encrypted             = true
+      volume_size = var.node_disk_size
+      volume_type = var.node_volume_type
+      iops        = var.node_volume_type == "gp3" ? var.node_volume_iops : null
+      throughput  = var.node_volume_type == "gp3" ? var.node_volume_throughput : null
+      encrypted   = true
       # kms_key_id            = var.kms_key_arn
       delete_on_termination = true
     }
