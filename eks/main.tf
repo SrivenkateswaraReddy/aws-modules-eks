@@ -140,7 +140,7 @@ resource "aws_launch_template" "eks_nodes" {
       iops                  = var.node_volume_type == "gp3" ? var.node_volume_iops : null
       throughput            = var.node_volume_type == "gp3" ? var.node_volume_throughput : null
       encrypted             = true
-      kms_key_id            = var.kms_key_arn
+      # kms_key_id            = var.kms_key_arn
       delete_on_termination = true
     }
   }
