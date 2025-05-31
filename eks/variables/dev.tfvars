@@ -64,7 +64,7 @@ additional_addons = [
 
 # Encryption (Optional - replace with your KMS key ARN)
 # kms_key_arn = "arn:aws:kms:us-west-2:123456789012:key/12345678-1234-1234-1234-123456789012"
-kms_key_arn = null
+# kms_key_arn = null
 
 # Tags
 tags = {

@@ -23,11 +23,11 @@ variable "public_access_cidrs" {
   default     = ["0.0.0.0/0"]
 }
 
-variable "kms_key_arn" {
-  description = "ARN of KMS key for encryption"
-  type        = string
-  default     = null
-}
+# variable "kms_key_arn" {
+#   description = "ARN of KMS key for encryption"
+#   type        = string
+#   default     = null
+# }
 
 variable "log_retention_days" {
   description = "Number of days to retain CloudWatch logs"

@@ -21,12 +21,12 @@ resource "aws_eks_cluster" "dev_eks_cluster" {
   enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
   # Encryption at rest
-  encryption_config {
-    provider {
-      key_arn = var.kms_key_arn
-    }
-    resources = ["secrets"]
-  }
+  # encryption_config {
+  #   provider {
+  #     key_arn = var.kms_key_arn
+  #   }
+  #   resources = ["secrets"]
+  # }
 
   bootstrap_self_managed_addons = true
 
