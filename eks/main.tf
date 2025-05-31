@@ -177,47 +177,47 @@ resource "aws_launch_template" "eks_nodes" {
   tags = var.tags
 }
 
-# Managed Node Groups - t3.medium optimized
-resource "aws_eks_node_group" "general" {
-  cluster_name    = aws_eks_cluster.dev_eks_cluster.name
-  node_group_name = "t3-medium-general"
-  node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
-  subnet_ids      = data.terraform_remote_state.vpc.outputs.private_subnet_ids
+# # Managed Node Groups - t3.medium optimized
+# resource "aws_eks_node_group" "general" {
+#   cluster_name    = aws_eks_cluster.dev_eks_cluster.name
+#   node_group_name = "t3-medium-general"
+#   node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
+#   subnet_ids      = data.terraform_remote_state.vpc.outputs.private_subnet_ids
 
-  capacity_type  = var.node_capacity_type
-  instance_types = ["t3.medium"] # Fixed to t3.medium for consistent performance
+#   capacity_type = var.node_capacity_type
+#   # instance_types = ["t3.medium"] # Fixed to t3.medium for consistent performance
 
-  scaling_config {
-    desired_size = var.node_desired_size
-    max_size     = var.node_max_size
-    min_size     = var.node_min_size
-  }
+#   scaling_config {
+#     desired_size = var.node_desired_size
+#     max_size     = var.node_max_size
+#     min_size     = var.node_min_size
+#   }
 
-  update_config {
-    max_unavailable_percentage = var.node_max_unavailable_percentage
-  }
+#   update_config {
+#     max_unavailable_percentage = var.node_max_unavailable_percentage
+#   }
 
-  launch_template {
-    id      = aws_launch_template.eks_nodes.id
-    version = aws_launch_template.eks_nodes.latest_version
-  }
+#   launch_template {
+#     id      = aws_launch_template.eks_nodes.id
+#     version = aws_launch_template.eks_nodes.latest_version
+#   }
 
-  # Ensure proper ordering of resource creation and destruction
-  depends_on = [
-    aws_eks_cluster.dev_eks_cluster,
-    aws_eks_addon.vpc_cni, # Ensure VPC CNI is configured before nodes
-  ]
+#   # Ensure proper ordering of resource creation and destruction
+#   depends_on = [
+#     aws_eks_cluster.dev_eks_cluster,
+#     aws_eks_addon.vpc_cni, # Ensure VPC CNI is configured before nodes
+#   ]
 
-  lifecycle {
-    ignore_changes = [scaling_config[0].desired_size]
-  }
+#   lifecycle {
+#     ignore_changes = [scaling_config[0].desired_size]
+#   }
 
-  tags = merge(var.tags, {
-    Name                                                = "${var.eks_cluster_name}-t3-medium-nodes"
-    "k8s.io/cluster-autoscaler/enabled"                 = "true"
-    "k8s.io/cluster-autoscaler/${var.eks_cluster_name}" = "owned"
-  })
-}
+#   tags = merge(var.tags, {
+#     Name                                                = "${var.eks_cluster_name}-t3-medium-nodes"
+#     "k8s.io/cluster-autoscaler/enabled"                 = "true"
+#     "k8s.io/cluster-autoscaler/${var.eks_cluster_name}" = "owned"
+#   })
+# }
 
 # Optional: Spot instance node group for t3.medium
 resource "aws_eks_node_group" "spot" {
@@ -228,8 +228,8 @@ resource "aws_eks_node_group" "spot" {
   node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
   subnet_ids      = data.terraform_remote_state.vpc.outputs.private_subnet_ids
 
-  capacity_type  = "SPOT"
-  instance_types = ["t3.medium", "t3a.medium"] # Similar performance instances
+  capacity_type = "SPOT"
+  # instance_types = ["t3.medium", "t3a.medium"] # Similar performance instances
 
   scaling_config {
     desired_size = var.spot_desired_size
