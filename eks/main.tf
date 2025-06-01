@@ -247,11 +247,11 @@ resource "aws_eks_node_group" "spot" {
   }
 
   # Taints for spot instances
-  taint {
-    key    = "node.kubernetes.io/instance-type"
-    value  = "spot"
-    effect = "NO_SCHEDULE"
-  }
+  # taint {
+  #   key    = "node.kubernetes.io/instance-type"
+  #   value  = "spot"
+  #   effect = "NO_SCHEDULE"
+  # }
 
   depends_on = [
     aws_eks_cluster.dev_eks_cluster,
