@@ -126,11 +126,12 @@ resource "aws_security_group_rule" "node_egress_all" {
 
 # Launch Template for t3.medium instances with max pod support
 resource "aws_launch_template" "eks_nodes" {
-  name_prefix            = "${var.eks_cluster_name}-t3-medium-template"
-  description            = "Launch template for EKS t3.medium worker nodes with high pod density"
+  name_prefix            = "${var.eks_cluster_name}-medium-template"
+  description            = "Launch template for EKS medium worker nodes with high pod density"
   update_default_version = true
 
-  instance_type = "t3.medium"
+  # instance_type = "t3.medium"
+  instance_type = "t4g.medium"
 
   block_device_mappings {
     device_name = "/dev/xvda"
@@ -159,14 +160,14 @@ resource "aws_launch_template" "eks_nodes" {
   tag_specifications {
     resource_type = "instance"
     tags = merge(var.tags, {
-      Name = "${var.eks_cluster_name}-t3-medium-node"
+      Name = "${var.eks_cluster_name}-medium-node"
     })
   }
 
   tag_specifications {
     resource_type = "volume"
     tags = merge(var.tags, {
-      Name = "${var.eks_cluster_name}-t3-medium-volume"
+      Name = "${var.eks_cluster_name}-medium-volume"
     })
   }
 
@@ -224,7 +225,7 @@ resource "aws_eks_node_group" "spot" {
   count = var.enable_spot_instances ? 1 : 0
 
   cluster_name    = aws_eks_cluster.dev_eks_cluster.name
-  node_group_name = "t3-medium-spot"
+  node_group_name = "medium-spot"
   node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
   subnet_ids      = data.terraform_remote_state.vpc.outputs.private_subnet_ids
 
@@ -263,7 +264,7 @@ resource "aws_eks_node_group" "spot" {
   }
 
   tags = merge(var.tags, {
-    Name                                                = "${var.eks_cluster_name}-t3-medium-spot-nodes"
+    Name                                                = "${var.eks_cluster_name}-medium-spot-nodes"
     "k8s.io/cluster-autoscaler/enabled"                 = "true"
     "k8s.io/cluster-autoscaler/${var.eks_cluster_name}" = "owned"
   })
