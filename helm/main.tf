@@ -348,7 +348,7 @@ resource "kubernetes_ingress_v1" "nginx_alb" {
       "alb.ingress.kubernetes.io/healthcheck-path"        = "/healthz"
       "alb.ingress.kubernetes.io/healthcheck-port"        = "10254"
       "alb.ingress.kubernetes.io/target-group-attributes" = "deregistration_delay.timeout_seconds=30"
-      "alb.ingress.kubernetes.io/subnets"                 = join(",", data.terraform_remote_state.vpc.outputs.public_subnets)
+      "alb.ingress.kubernetes.io/subnets"                 = join(",", data.terraform_remote_state.vpc.outputs.public_subnet_ids)
       "alb.ingress.kubernetes.io/tags"                    = "Environment=${var.environment},ManagedBy=terraform"
     }
   }
