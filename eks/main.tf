@@ -224,6 +224,8 @@ resource "aws_launch_template" "eks_nodes" {
 resource "aws_eks_node_group" "spot" {
   count = var.enable_spot_instances ? 1 : 0
 
+  # ami_type        = "AL2_x86_64"
+  ami_type        = "AL2_x86_64" # use it if you planning to use graviton instance type else comment use above one
   cluster_name    = aws_eks_cluster.dev_eks_cluster.name
   node_group_name = "medium-spot"
   node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
