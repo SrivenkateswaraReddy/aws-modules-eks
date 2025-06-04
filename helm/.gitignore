@@ -4,7 +4,7 @@ terraform.tfstate.*
 *.terraform.
 # Ignore Terraform working directory
 .terraform/
-
+.terraform.lock.hcl
 # Ignore Terraform variable files
 # *.tfvars
 *.tfvars.json
