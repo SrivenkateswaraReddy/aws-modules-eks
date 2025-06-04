@@ -59,12 +59,12 @@ output "node_groups" {
 # }
 
 #0 odic endpoints
-output "cluster_oidc_provider_arn" {
-  description = "OIDC provider ARN for the EKS cluster"
-  value       = aws_iam_openid_connect_provider.oidc.arn
-}
+# output "cluster_oidc_provider_arn" {
+#   description = "OIDC provider ARN for the EKS cluster"
+#   value       = aws_iam_openid_connect_provider.oidc.arn
+# }
 
-output "cluster_oidc_issuer_url" {
-  description = "OIDC issuer URL for the EKS cluster"
-  value       = aws_iam_openid_connect_provider.oidc.url
-}
+# output "cluster_oidc_issuer_url" {
+#   description = "OIDC issuer URL for the EKS cluster"
+#   value       = aws_iam_openid_connect_provider.oidc.url
+# }
