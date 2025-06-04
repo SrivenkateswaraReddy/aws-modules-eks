@@ -57,8 +57,3 @@ output "node_groups" {
 #   description = "EKS node groups"
 #   value       = aws_eks_node_group.main[*].node_group_name
 # }
-
-output "cluster_version" {
-  description = "The Kubernetes version for the EKS cluster"
-  value       = aws_eks_cluster.dev_eks_cluster.version
-}

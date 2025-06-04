@@ -313,9 +313,9 @@ resource "helm_release" "nginx_ingress" {
           default = true
         }
         config = {
-          use-forwarded-headers = "true"
+          use-forwarded-headers      = "true"
           compute-full-forwarded-for = "true"
-          use-proxy-protocol = "false"
+          use-proxy-protocol         = "false"
         }
         metrics = {
           enabled = true
@@ -335,27 +335,27 @@ resource "kubernetes_ingress_v1" "nginx_alb" {
     name      = "nginx-alb-ingress"
     namespace = "ingress-nginx"
     annotations = {
-      "kubernetes.io/ingress.class"                    = "alb"
-      "alb.ingress.kubernetes.io/scheme"               = "internet-facing"
-      "alb.ingress.kubernetes.io/target-type"          = "instance"
-      "alb.ingress.kubernetes.io/backend-protocol"     = "HTTP"
-      "alb.ingress.kubernetes.io/listen-ports"         = jsonencode([
+      "kubernetes.io/ingress.class"                = "alb"
+      "alb.ingress.kubernetes.io/scheme"           = "internet-facing"
+      "alb.ingress.kubernetes.io/target-type"      = "instance"
+      "alb.ingress.kubernetes.io/backend-protocol" = "HTTP"
+      "alb.ingress.kubernetes.io/listen-ports" = jsonencode([
         { HTTP = 80 },
         var.certificate_arn != "" ? { HTTPS = 443 } : { HTTP = 80 }
       ])
-      "alb.ingress.kubernetes.io/certificate-arn"      = var.certificate_arn != "" ? var.certificate_arn : null
-      "alb.ingress.kubernetes.io/ssl-redirect"         = var.certificate_arn != "" ? "443" : null
-      "alb.ingress.kubernetes.io/healthcheck-path"     = "/healthz"
-      "alb.ingress.kubernetes.io/healthcheck-port"     = "10254"
+      "alb.ingress.kubernetes.io/certificate-arn"         = var.certificate_arn != "" ? var.certificate_arn : null
+      "alb.ingress.kubernetes.io/ssl-redirect"            = var.certificate_arn != "" ? "443" : null
+      "alb.ingress.kubernetes.io/healthcheck-path"        = "/healthz"
+      "alb.ingress.kubernetes.io/healthcheck-port"        = "10254"
       "alb.ingress.kubernetes.io/target-group-attributes" = "deregistration_delay.timeout_seconds=30"
-      "alb.ingress.kubernetes.io/subnets"              = join(",", data.terraform_remote_state.vpc.outputs.public_subnets)
-      "alb.ingress.kubernetes.io/tags"                 = "Environment=${var.environment},ManagedBy=terraform"
+      "alb.ingress.kubernetes.io/subnets"                 = join(",", data.terraform_remote_state.vpc.outputs.public_subnets)
+      "alb.ingress.kubernetes.io/tags"                    = "Environment=${var.environment},ManagedBy=terraform"
     }
   }
 
   spec {
     ingress_class_name = "alb"
-    
+
     rule {
       http {
         path {
@@ -448,14 +448,14 @@ resource "kubernetes_ingress_v1" "demo_app" {
     name      = "demo-app-ingress"
     namespace = kubernetes_namespace.demo.metadata[0].name
     annotations = {
-      "kubernetes.io/ingress.class" = "nginx"
+      "kubernetes.io/ingress.class"                = "nginx"
       "nginx.ingress.kubernetes.io/rewrite-target" = "/"
     }
   }
 
   spec {
     ingress_class_name = "nginx"
-    
+
     rule {
       host = var.domain_name != "" ? var.domain_name : null
       http {
