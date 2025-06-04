@@ -130,8 +130,8 @@ resource "aws_launch_template" "eks_nodes" {
   description            = "Launch template for EKS medium worker nodes with high pod density"
   update_default_version = true
 
-  # instance_type = "t3.medium"
-  instance_type = "t4g.medium"
+  instance_type = "t3.medium"
+  # instance_type = "t4g.medium"
 
   block_device_mappings {
     device_name = "/dev/xvda"
@@ -225,7 +225,7 @@ resource "aws_eks_node_group" "spot" {
   count = var.enable_spot_instances ? 1 : 0
 
   # ami_type        = "AL2_x86_64"
-  ami_type        = "AL2_ARM_64" # use it if you planning to use graviton instance type else comment use above one
+  # ami_type        = "AL2_ARM_64" # use it if you planning to use graviton instance type else comment use above one
   cluster_name    = aws_eks_cluster.dev_eks_cluster.name
   node_group_name = "medium-spot"
   node_role_arn   = data.terraform_remote_state.iam.outputs.eks_node_role_arn
