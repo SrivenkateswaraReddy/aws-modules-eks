@@ -20,12 +20,15 @@ jobs:
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
+
       - name: Install Helm
         run: |
           curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
       - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig --region us-east-1 --name dev-eks-cluster
+
       ####################################################
       # STEP 1: Install cert-manager (Required by Rancher)
       ####################################################
@@ -40,11 +43,13 @@ jobs:
           helm install cert-manager jetstack/cert-manager \
             --namespace cert-manager \
             --version v1.14.2
+
       - name: Wait for cert-manager to be ready
         run: |
           kubectl wait --for=condition=Available deployment/cert-manager -n cert-manager --timeout=180s
           kubectl wait --for=condition=Available deployment/cert-manager-webhook -n cert-manager --timeout=180s
           kubectl wait --for=condition=Available deployment/cert-manager-cainjector -n cert-manager --timeout=180s
+
       ##################################
       # STEP 2: Install Argo CD
       ##################################
@@ -57,6 +62,7 @@ jobs:
       - name: Wait for Argo CD pods to be ready
         run: |
           kubectl wait --for=condition=Ready pods --all -n argocd --timeout=180s
+
       ##################################
       # STEP 3: Install Rancher
       ##################################
@@ -67,11 +73,12 @@ jobs:
         run: |
           helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
           helm repo update
-      - name: Install Rancher with Let's Encrypt staging
+
+      - name: Install or upgrade Rancher with Let's Encrypt staging
         run: |
-          helm install rancher rancher-latest/rancher \
+          helm upgrade --install rancher rancher-latest/rancher \
             --namespace cattle-system \
-            --set hostname=rancher.my.domain.com\
+            --set hostname=rancher.my.domain.com \
             --set replicas=1 \
             --set ingress.tls.source=letsEncrypt \
             --set letsEncrypt.email=admin@my.domain.com \
@@ -80,6 +87,7 @@ jobs:
       - name: Wait for Rancher rollout
         run: |
           kubectl rollout status deployment/rancher -n cattle-system --timeout=300s
+
       ##################################
       # STEP 4: List all namespaces
       ##################################
