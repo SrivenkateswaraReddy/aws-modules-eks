@@ -16,7 +16,7 @@ on:
       action:
         description: "Action to perform (Apply, Destory or plan)"
         required: true
-        default: "apply"
+        default: "plan"
         type: choice
         options:
           - plan
@@ -41,6 +41,7 @@ on:
           - iam
           - vpc
           - eks
+          - helm
 
 jobs:
   terraform:

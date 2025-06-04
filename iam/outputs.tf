@@ -57,3 +57,4 @@ output "eks_networking_policy_attachment_id" {
   description = "The ID of the policy attachment for the EKS Cluster role (Networking Policy)"
   value       = aws_iam_role_policy_attachment.eks_networking_policy.id
 }
+

@@ -1,4 +1,8 @@
 # Outputs
+output "cluster_name" {
+  description = "EKS cluster Name"
+  value       = aws_eks_cluster.dev_eks_cluster.name
+}
 output "cluster_id" {
   description = "EKS cluster ID"
   value       = aws_eks_cluster.dev_eks_cluster.id
@@ -37,4 +41,24 @@ output "oidc_issuer_url" {
 output "oidc_provider_arn" {
   description = "The ARN of the OIDC Provider for EKS"
   value       = aws_iam_openid_connect_provider.eks_oidc.arn
+}
+
+output "cluster_certificate_authority_data" {
+  description = "Base64 encoded certificate data required to communicate with the cluster"
+  value       = aws_eks_cluster.main.certificate_authority[0].data
+}
+
+output "node_groups" {
+  description = "EKS node groups"
+  value       = aws_eks_node_group.spot.node_group_name
+}
+
+# output "node_groups" {
+#   description = "EKS node groups"
+#   value       = aws_eks_node_group.main[*].node_group_name
+# }
+
+output "cluster_version" {
+  description = "The Kubernetes version for the EKS cluster"
+  value       = aws_eks_cluster.dev_eks_cluster.version
 }

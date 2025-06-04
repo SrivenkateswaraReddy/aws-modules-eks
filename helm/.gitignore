@@ -1,0 +1,17 @@
+# Ignore Terraform state and backup files
+terraform.tfstate
+terraform.tfstate.*
+*.terraform.
+# Ignore Terraform working directory
+.terraform/
+
+# Ignore Terraform variable files
+# *.tfvars
+*.tfvars.json
+
+# Ignore backend configuration file
+backend.hcl
+
+# Ignore tflint configuration file
+.tflint.hcl
+*.json
