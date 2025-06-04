@@ -45,12 +45,12 @@ output "oidc_provider_arn" {
 
 output "cluster_certificate_authority_data" {
   description = "Base64 encoded certificate data required to communicate with the cluster"
-  value       = aws_eks_cluster.main.certificate_authority[0].data
+  value       = aws_eks_cluster.dev_eks_cluster.certificate_authority[0].data
 }
 
 output "node_groups" {
   description = "EKS node groups"
-  value       = aws_eks_node_group.spot.node_group_name
+  value       = aws_eks_node_group.spot[*].node_group_name
 }
 
 # output "node_groups" {
