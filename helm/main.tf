@@ -209,13 +209,13 @@ resource "aws_iam_role" "aws_load_balancer_controller" {
       {
         Effect = "Allow"
         Principal = {
-          Federated = data.terraform_remote_state.eks.outputs.cluster_oidc_provider_arn
+          Federated = data.terraform_remote_state.eks.outputs.oidc_provider_arn
         }
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringEquals = {
-            "${replace(data.terraform_remote_state.eks.outputs.cluster_oidc_issuer_url, "https://", "")}:sub" = "system:serviceaccount:kube-system:aws-load-balancer-controller"
-            "${replace(data.terraform_remote_state.eks.outputs.cluster_oidc_issuer_url, "https://", "")}:aud" = "sts.amazonaws.com"
+            "${replace(data.terraform_remote_state.eks.outputs.oidc_issuer_url, "https://", "")}:sub" = "system:serviceaccount:kube-system:aws-load-balancer-controller"
+            "${replace(data.terraform_remote_state.eks.outputs.oidc_issuer_url, "https://", "")}:aud" = "sts.amazonaws.com"
           }
         }
       }
