@@ -3,7 +3,7 @@ resource "aws_iam_policy" "aws_load_balancer_controller" {
   name        = "${data.terraform_remote_state.eks.outputs.cluster_name}-aws-lb-controller-policy"
   description = "IAM policy for AWS Load Balancer Controller"
 
-  policy = file("${path.module}/aws_lb_controller_policy.json")
+  policy = file("${path.module}/helm/aws_lb_controller_policy.json")
 }
 
 # IAM Role for AWS Load Balancer Controller
