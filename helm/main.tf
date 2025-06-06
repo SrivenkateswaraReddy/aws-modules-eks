@@ -480,3 +480,42 @@ resource "kubernetes_ingress_v1" "demo_app" {
   ]
 }
 
+# resource "kubernetes_ingress_v1" "nginx_alb" {
+#   metadata {
+#     name      = "nginx-alb-ingress"
+#     namespace = "ingress-nginx"
+#     annotations = {
+#       "kubernetes.io/ingress.class"                = "alb"
+#       "alb.ingress.kubernetes.io/scheme"           = "internet-facing"
+#       "alb.ingress.kubernetes.io/target-type"      = "instance"
+#       "alb.ingress.kubernetes.io/backend-protocol" = "HTTP"
+#       "alb.ingress.kubernetes.io/listen-ports"     = "[{\"HTTP\": 80}]"
+#       "alb.ingress.kubernetes.io/healthcheck-path" = "/healthz"
+#       "alb.ingress.kubernetes.io/healthcheck-port" = "10254"
+#       "alb.ingress.kubernetes.io/subnets"          = join(",", data.terraform_remote_state.vpc.outputs.public_subnet_ids)
+#     }
+#   }
+
+#   spec {
+#     ingress_class_name = "alb"
+
+#     rule {
+#       http {
+#         path {
+#           path      = "/"
+#           path_type = "Prefix"
+#           backend {
+#             service {
+#               name = "nginx-ingress-ingress-nginx-controller"
+#               port {
+#                 number = 80
+#               }
+#             }
+#           }
+#         }
+#       }
+#     }
+#   }
+
+#   depends_on = [helm_release.aws_load_balancer_controller]
+# }
